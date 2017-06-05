@@ -1,0 +1,7 @@
+language: python
+install:
+  - pip install flake8
+  - pip install -r requirements.txt
+script:
+  - flake8 maracker
+  - python maracker/manage.py test
