@@ -11,13 +11,13 @@ class MicrobadgerService:
         url = MicrobadgerService.details_url.format(namespace, name)
         response = requests.get(url)
         try:
-            # return MicrobadgerMetadata(response.json())
-            metadata = response.json()
-            labels = metadata["Labels"]
-            return MipApplication(docker_name=metadata["ImageName"],
-                    description=labels["org.label-schema.description"],
-                    cpu=0.1,
-                    memory=labels["org.label-schema.memory-hint"])
+            return MicrobadgerMetadata(response.json())
+            # metadata = response.json()
+            # labels = metadata["Labels"]
+            # return MipApplication(docker_name=metadata["ImageName"],
+            #         description=labels["org.label-schema.description"],
+            #         cpu=0.1,
+            #         memory=labels["org.label-schema.memory-hint"])
         except json.decoder.JSONDecodeError:
             return None
 

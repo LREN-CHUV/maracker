@@ -1,6 +1,5 @@
 {
-  "docker_name": "groovytron/test",
-  "description": "I'm a test, please remove me after testing.",
-  "cpu": 0.2,
-  "memory": 64
+  "docker_namespace": "hbpmip",
+  "docker_image": "woken",
+  "cpu": 0.6
 }

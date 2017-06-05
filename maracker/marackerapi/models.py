@@ -5,16 +5,8 @@ from django.core.validators import MinValueValidator, RegexValidator
 class MipApplication(models.Model):
     """ Represent a MIP developped app deployable on Marathon """
 
-    docker_name = models.CharField(
-        max_length=200,
-        blank=False,
-        unique=True,
-        validators=[
-            RegexValidator(
-                r'\w\/\w',
-                'The docker image name must have the following format: <namespace>/<image-name>'
-            )
-        ])  # Docker image's name
+    docker_namespace = models.CharField(max_length=50, blank=False)
+    docker_image = models.CharField(max_length=50, blank=False)
     description = models.TextField(default='no description available')
     cpu = models.DecimalField(
         max_digits=3,
