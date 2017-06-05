@@ -1,6 +1,6 @@
 import requests
 import json
-from .models import MipApplication
+
 
 class MicrobadgerService:
     api_url = "https://api.microbadger.com"
@@ -21,11 +21,12 @@ class MicrobadgerService:
         except json.decoder.JSONDecodeError:
             return None
 
+
 class MicrobadgerMetadata:
     def __init__(self, docker_meta):
-        labels =  docker_meta["Labels"]
+        labels = docker_meta["Labels"]
         self.image_name = docker_meta["ImageName"]
         self.image_url = docker_meta["ImageURL"]
-        self.author= docker_meta["Author"]
+        self.author = docker_meta["Author"]
         self.description = labels["org.label-schema.description"]
         self.memory = labels["org.label-schema.memory-hint"]
