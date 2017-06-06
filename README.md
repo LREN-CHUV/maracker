@@ -27,9 +27,9 @@ the API by doing the following actions:
 8. You can test the API and query it with `curl http://localhost:8000/mipapps`
    which lists the available MIP applications in the database.
 9. If you want to add a new application, you can test it using the `test.json`
-   file which adds the MIP's woken container data in the database.
-   Just run `curl -X POST http://localhost:8000/mipapps -d @test.json
-   -H "Content-Type: application/json"`.
+   file which adds the [MIP's woken container's](https://hub.docker.com/r/hbpmip/woken/)
+   data in the database. Just run `curl -X POST http://localhost:8000/mipapps
+   -d @test.json -H "Content-Type: application/json"`.
 
 If you want to run the unit tests, use the `manage.py` script and run
 `python manage.py test`.
