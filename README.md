@@ -4,7 +4,7 @@ API aiming to make Human Brain Project's [Medical Informatics Platform's](https:
 
 [![Build Status](https://travis-ci.org/groovytron/maracker.svg?branch=master)](https://travis-ci.org/groovytron/maracker)
 
-# Installation for local testing
+## Installation for local testing
 
 Assuming you already have a working instance of **PostgreSQL** and **Python 3.6**
 or later installed and your operating system is **GNU/Linux**, you can install
