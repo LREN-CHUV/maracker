@@ -26,7 +26,7 @@ Ce projet est décomposé en 12 sous-projets. L’équipe de développement du C
 s’occupe de la réalisation du sous-projet 8 (SBP8):
 Medical Informatics Platform (MIP).
 
-Le premier but du SP8 est de proposer divers outils permettant de mieux
+Le premier but du SBP8 est de proposer divers outils permettant de mieux
 comprendre les différences et similitudes entre différentes maladies
 du cerveau. Ces outils permettraient de mieux classifier, diagnostiquer
 et traiter ces maladies en se basant sur une grande quantité de données
@@ -71,7 +71,7 @@ peuvent constituer de bonnes pistes pour régler cette problématique.
 
 S'il reste du temps, le développeur pourra développer une petite application
 proposant à l'utilisateur une liste d'applications en disponibles et
-en exécution. Il pourra ensuite les tester grâces à des `<iframe>`.
+en exécution. Il pourra ensuite les tester grâces à des :code:`<iframe>`.
 
 On peut donc résumer les objectifs de la manière suivante:
 
@@ -88,9 +88,10 @@ On peut donc résumer les objectifs de la manière suivante:
 3. Tester voire mettre en œuvre une solution permettant d’exposer
    les applications déployées avec Marathon aux utilisateurs.
 4. Réaliser un démonstrateur permettant de tester l’API et éventuellement
-   afficher les applications déployables de manière similaire au Dockstore.
+   afficher les applications déployables de manière similaire au
+   `Dockstore <https://dockstore.org/>`_.
    Les applications en cours d’exécution pourraient être affichées à
-   l’aide d’`<iframe>`.
+   l’aide d’:code:`<iframe>`.
 
 
 Les objectifs *1* et *2* sont considérés comme objectifs primaires et
@@ -100,11 +101,12 @@ des objectifs secondaires.
 Voici un schéma illustrant les différents composant à développer ou mettre
 en place lors du projet:
 
-Outils et technologies utilisées
+Outils et technologies utilisés
 --------------------------------
 
 Cette partie décrit les différentes technologies et outils utilisés pour la
-réalisation du projet. Elle mélange de nombreux outils permettant de gérer
+réalisation du projet soit pour son implémentation soit pour la compréhension
+de la problématique. Elle mélange de nombreux outils permettant de gérer
 des machines virtuelles, gérer des containers ou encore de mettre en
 communication plusieurs containers. L'ensemble des logiciels présentés sont
 open-source.
@@ -124,10 +126,10 @@ CentOS par exemple. On peut ensuite lancer la machine virtuelle en se plaçant
 dans le dossier contenant le `Vagrantfile` et en utilisant la commande
 :code:`vagrant up`. On peut ensuite se connecter à la machine virtuelle en ssh
 grâce à la commande :code:`vagrant ssh`. On peut éteindre la machine virtuelle
-démarrée avec la commande `vagrant halt` ou `vagrant destroy` si on désire
-effacer complètement la machine virtuelle.
+démarrée avec la commande :code:`vagrant halt` ou :code:`vagrant destroy`
+si on désire effacer complètement la machine virtuelle.
 
-Vagrant a besoin d'une solution de virtualisation pour fonctionner. Il supporte
+Vagrant a besoin d'un hyperviseur pour fonctionner. Il supporte
 **Virtualbox**, **Docker** et également **KVM**/**libvirt** qui remplissent
 ce rôle.
 Il est généralement utilisé avec Virtualbox mais il semble que KVM soit
@@ -141,25 +143,24 @@ Développé à l'université de Berkley, **Mesos** permet de gérer des clusters
 machines.
 Ce logiciel propose plusieurs outils permettant l'isolation de CPU, de
 mémoire et de fichiers. Utiliser un tel logiciel permet donc de partager
-les ressources d'une infrastructure. En général, Mesos est utilisé
-conjointement avec **Marathon**. Mesos est utilisé pour la gestion de systèmes
-distribués de grandes entreprises telles que Twitter, Airbnb, Apple ou
-encore Verizon.
+les ressources de l'infrastructure d'un datacenter. En général, Mesos est
+utilisé conjointement avec **Marathon**. Mesos est utilisé pour la gestion
+de systèmes distribués de grandes entreprises telles que Twitter, Airbnb,
+Apple ou encore Verizon.
 
 Mesos supporte Docker et permet une isolation entre les tâches et les containers
-devant les réaliser.
-Concernant son utilisation, Mesos propose un CLI et une interface web permettant
-son administration.
+devant les réaliser. Concernant son utilisation, Mesos propose un CLI
+(Command Line Interface) et une interface web permettant son administration.
 
-Deux types d'instances de Mesos fonctionnent conjointement; une instance master
-et une instance slave. Pour qu'une application travaille avec Mesos, il est
-nécessaire d'utiliser un framerwork. Celui-ci est composé d'un scheduler
-(responsable de traiter les offres de ressources) et un executor utilsable par
-l'esclave pour réaliser une ou plusieurs tâches du framework. Il existe
-des framework dans différents langages; Chronos ou Spark pour Scala, Hadoop ou
-Storm pour Java et dpark pour Python.
+Deux types d'instances de Mesos fonctionnent conjointement; une instance
+*master* et une instance *slave*. Pour qu'une application travaille avec
+Mesos, il est nécessaire d'utiliser un framerwork. Celui-ci est composé
+d'un scheduler (responsable de traiter les offres de ressources)
+et un executor utilsable par l'esclave pour réaliser une ou plusieurs
+tâches du framework. Il existe des framework dans différents langages;
+Chronos ou Spark pour Scala, Hadoop ou Storm pour Java et dpark pour Python.
 
-L'interaction antre le framework, le master et le slave se fait de la manière
+L'interaction entre le framework, le master et le slave se fait de la manière
 suivante:
 
 1. Le slave notifie le master des ressources (nombre de CPUs, mémoire, etc.)
@@ -182,54 +183,54 @@ Sources:
   <https://www.slideshare.net/GladsonManuel/mesos-a-simple>`_
 
 
-Mesos DNS
-~~~~~~~~~
+.. Mesos DNS
+.. ~~~~~~~~~
 
-**Mesos DNS** est une outil permettant la découverte de services groupés dans
-des clusters Apache Mesos. Il fonctionne de manière assez similaire à
-un serveur DNS selon le schéma suivant:
+.. **Mesos DNS** est un outil permettant la découverte de services groupés dans
+.. des clusters Mesos. Il fonctionne de manière assez similaire à un serveur DNS
+.. selon le schéma suivant:
 
-.. image:: images/architecture.png
+.. .. image:: images/architecture.png
 
-Les applications démarrées avec Marathon se font attribuer un nom de domaine
-ressemblant à *xxxx*.example.com où *xxxx* est le nom de l'application.
+.. Les applications démarrées avec Marathon se font attribuer un nom de domaine
+.. ressemblant à *xxxx*.example.com où *xxxx* est le nom de l'application.
 
-Mesos DNS s'occupe de faire le lien entre lee noms des services et
-les adresses IP et ports des machines qui les hebèrgent.
+.. Mesos DNS s'occupe de faire le lien entre les noms des services et
+.. les adresses IP et ports des machines qui les hebèrgent.
 
-Mesos DNS est configurable au-travers d'un fichier `config.json`.
-En voici un fichier d'exemple:
+.. Mesos DNS est configurable au-travers d'un fichier `config.json`.
+.. En voici un fichier d'exemple:
 
-.. code-block:: json
+.. .. code-block:: json
 
-    {
-      "zk": "zk://192.168.33.10:2181/mesos",
-      "masters": ["192.168.33.10:5050"],
-      "refreshSeconds": 60,
-      "ttl": 60,
-      "domain": "mesos",
-      "ns": "ns1",
-      "port": 53,
-      "resolvers": ["8.8.8.8"],
-      "timeout": 5,
-      "listener": "0.0.0.0",
-      "SOAMname": "root.ns1.mesos",
-      "SOARname": "ns1.mesos",
-      "SOARefresh": 60,
-      "SOARetry":   600,
-      "SOAExpire":  86400,
-      "SOAMinttl": 60,
-      "dnson": true,
-      "httpon": true,
-      "httpport": 8123,
-      "externalon": true,
-      "recurseon": true
-    }
+..     {
+..       "zk": "zk://192.168.33.10:2181/mesos",
+..       "masters": ["192.168.33.10:5050"],
+..       "refreshSeconds": 60,
+..       "ttl": 60,
+..      "domain": "mesos",
+..      "ns": "ns1",
+..      "port": 53,
+..      "resolvers": ["8.8.8.8"],
+..      "timeout": 5,
+..      "listener": "0.0.0.0",
+..      "SOAMname": "root.ns1.mesos",
+..      "SOARname": "ns1.mesos",
+..      "SOARefresh": 60,
+..      "SOARetry":   600,
+..      "SOAExpire":  86400,
+..      "SOAMinttl": 60,
+..      "dnson": true,
+..      "httpon": true,
+..      "httpport": 8123,
+..      "externalon": true,
+..      "recurseon": true
+..     }
 
-Sources
+.. Sources
 
-- `Brève explication du fonctionnement de Mesos DNS
-  <http://mesosphere.github.io/mesos-dns/>`_
+.. - `Brève explication du fonctionnement de Mesos DNS
+..  <http://mesosphere.github.io/mesos-dns/>`
 
 Marathon
 ~~~~~~~~
@@ -249,19 +250,19 @@ Pour créer instancier un serveur HTTP en Python, il suffit d'envoyer le fichier
    :language: json
 
 Toute application instanciée doit avoir un identifiant unique défini par
-l'utilisateur (ici `test`). Si l'application se lance au-travers
-d'une commande, il faut spécifier celle-ci avec la clé `cmd`.
+l'utilisateur (ici :code:`test`). Si l'application se lance au-travers
+d'une commande, il faut spécifier celle-ci avec la clé :code:`cmd`.
 Si la commande prend des ports en arguments pour rendre l'application
-accessible, il est possible d'utiliser les variables `$PORT0`, `$PORT1`, etc.
-pour déléguer le choix du port à Marathon. Un port libre sera choisi
-alétoirement.
-On peut ensuite définir les ressources dont l'application à déployer a
-besoin(clés `cpus` et `mem`). Le minimum pour la clé `cpus` est 0.1 et
-le minimum pour la clé `mem` est 32. La mémoire est quantifié en Mb.
-Les ressources spécifiées sont la quantité de ressources par instance.
-Il faut également spéficier le nombre d'instances à l'aide de la clé
-`instances`. Si l'on veut modifier une application déjà déployée,
-il suffit de faire une requête `PUT` sur l'API avec les champs modifiés
+accessible, il est possible d'utiliser les variables :code:`$PORT0`,
+:code:`$PORT1`, etc. pour déléguer le choix du port à Marathon.
+Un port libre sera choisi alétoirement. On peut ensuite définir les ressources
+dont l'application à déployer a besoin (clés :code:`cpus` et :code:`mem`).
+Le minimum pour la clé :code:`cpus` est 0.1 et le minimum pour la cl
+:code:`mem` est 32. La mémoire est quantifié en Mb. Les ressources spécifiées
+sont la quantité de ressources par instance. Il faut également spéficier
+le nombre d'instances à l'aide de la clé :code:`instances`.
+Si l'on veut modifier une application déjà déployée, il suffit de faire
+une requête :code:`PUT` sur l'API avec les champs modifiés
 (exemple: le nombre d'instances). Marathon opèrera les modifications
 en redéployant l'application.
 
@@ -289,15 +290,16 @@ Yahoo! et Reddit.
 
 Avant de démarrer, le serveur ZooKeeper doit être initialisé avec un ID.
 Pour par exemple l'initialiser avec un l'ID *1*, il suffit de lancer la
-commande `sudo -u zookeeper zookeeper-server-initialize --myid=1`.
+commande :code:`sudo -u zookeeper zookeeper-server-initialize --myid=1`.
 Une fois initialisé, le serveur peut être démarré. Comme il se comporte
 comme un service sur UNIX, il suffit de lancer la commande
-`sudo service zookeeper-server start`. On peut l'appeler avec `enable`
-si l'on veut que le serveur démarre au boot de la machine et ainsi éviter
-de devoir le démarrer manuellement. On peut le stopper avec `start`.
+:code:`sudo service zookeeper-server start`. On peut l'appeler avec
+:code:`enable` si l'on veut que le serveur démarre au boot de
+la machine et ainsi éviter de devoir le démarrer manuellement.
+On peut le stopper avec :code:`start`.
 
 On peut interagir avec ZooKeeper au-travers de son client à l'aide de
-la commande `zookeeper-client`.
+la commande :code:`zookeeper-client`.
 
 ZooKeeper est nécessaire au fonctionnement de la stack Mesos car il permet
 la syncronisation entre les noeuds maîtres et les noeuds esclaves.
@@ -311,7 +313,7 @@ dépendances entre eux de manière plus ou moins intelligente.
 
 Une utilisation possible de Chronos pourrait consister à redémarrer
 des services de manière quotidienne afin de relancer ceux qui seraient
-éventuellement bloqué. On pourrait aussi imaginer récupérer des logs et
+éventuellement bloqués. On pourrait aussi imaginer récupérer des logs et
 des dumps de base de données et les transférer sur une autre machine
 pour faire des backups.
 
@@ -322,8 +324,8 @@ pour faire des backups.
 Ansible
 ~~~~~~~
 
-**Ansible** est outils de déploiement automatisé et de provisioning.
-Lors du déploiement une machine maître est responsable de
+**Ansible** est un outil de déploiement automatisé et de provisioning.
+Lors du déploiement, une machine maître est responsable de
 l'orchestration du déploiement et commande machines où doivent être
 déployés les services.
 
@@ -336,21 +338,24 @@ un noeud slave pour un cluster mesos:
    :language: yaml
 
 Dans chaque playbook, il est nécessaire de définir la machine sur laquelle
-on désire déployer nos services (ici `nodes`) ainsi que l'utilisateur qui
-s'y connecte (`vagrant` comme il s'agit d'une machine Vagrant). Si certaines
-commandes doivent être lancées en tant que super utilisateur, il faut activer
-cette fonctionnalité et définir quelle commande permet de changer
-d'utilisateur. Dans notre cas, on utilise la commande `sudo`.
+on désire déployer nos services (ici :code:`nodes`) ainsi que l'utilisateur qui
+s'y connecte (:code:`vagrant` comme il s'agit d'une machine Vagrant).
+Si certaines commandes doivent être lancées en tant que super utilisateur,
+il faut activer cette fonctionnalité et définir quelle commande permet de
+changer d'utilisateur. Dans notre cas, on utilise la commande :code:`sudo`.
 Une fois ces quatres variables définies, on peut définir les tâches à réaliser.
-Celles-ci seront exécutées l'une après l'autre. Chaque `task` a un nom
+Celles-ci seront exécutées l'une après l'autre. Chaque :code:`task` a un nom
 décrivant son but et une action. Il existe différents type d'actions:
 
-- `template`: permet de copier des fichiers de la machine hôte à la machine
-  distante. Cette commande utilise le moteur de template `jinja <http://jinja.pocoo.org/>`_ et il est possible de lui passer des variables. Cela permet de personnaliser des fichiers de configurations par exemple.
-- `apt`, `yum`, ... : permet d'installer des packages facilement. Il existe
-  des actions adaptées pour beaucoup de distributions Linux et langages comme
-  *ruby* (`bundler`) et *python* (`pip`).
-- `shell`: permet de lancer une commande dans le shell.
+- :code:`template`: permet de copier des fichiers de la machine hôte
+  à la machine distante. Cette commande utilise le moteur de template
+  `jinja <http://jinja.pocoo.org/>`_ et il est possible de lui passer
+  des variables. Cela permet de personnaliser des fichiers de configurations
+  par exemple.
+- :code:`apt`, :code:`yum`, ... : permet d'installer des packages facilement.
+  Il existe des actions adaptées pour beaucoup de distributions Linux et
+  langages comme *ruby* (:code:`bundler`) et *python* (:code:`pip`).
+- :code:`shell`: permet de lancer une commande dans le shell.
 
 Ansible est donc un outils de déploiement puissant. Il l'est encore plus
 lorsqu'il est combiné avec Vagrant car il permet de recréer un cluster
