@@ -73,6 +73,10 @@ S'il reste du temps, le développeur pourra développer une petite application
 proposant à l'utilisateur une liste d'applications en disponibles et
 en exécution. Il pourra ensuite les tester grâces à des :code:`<iframe>`.
 
+.. raw:: latex
+
+    \clearpage
+
 On peut donc résumer les objectifs de la manière suivante:
 
 1. Mettre en place une base de données PostgreSQL répertoriant différentes
@@ -111,14 +115,16 @@ des machines virtuelles, gérer des containers ou encore de mettre en
 communication plusieurs containers. L'ensemble des logiciels présentés sont
 open-source.
 
+**Schéma explicatif global (à venir)**
+
 Vagrant
 ~~~~~~~
 
 Vagrant est un outil open source permettant de créer et gérer des machines
 virtuelles. Il fonctionne avec un fichier `Vagrantfile` décrivrant
 les propriétés de la machine virtuelle telles que la distribution utilisée
-son nom et sa configuration réseau par exemple. Notez que ce fichier est
-écrit en Ruby.
+son nom et sa configuration réseau par exemple. Ce fichier est un script
+*Ruby*.
 
 On peut créer un `Vagrantfile` facilement grâce à la commande
 :code:`vagrant init centos/7` qui crée un `Vagrantfile` basé sur une machine
@@ -242,6 +248,10 @@ et démarrage/arrêt d'applications) pour différents services contenus dans
 des containers. Marathon propose une interface web d'administration et
 une *API REST* implémentée en *Scala*.
 
+.. raw:: latex
+
+    \clearpage
+
 C'est cette API qui sera utilisée pour la réalisation de ce projet.
 Pour créer instancier un serveur HTTP en Python, il suffit d'envoyer le fichier
 *json* suivant à l'API:
@@ -275,6 +285,12 @@ En voici un exemple:
 
 .. literalinclude:: examples/outyet.json
    :language: json
+
+**Explications supplémentaires nécessaires ici.**
+
+.. raw:: latex
+
+    \clearpage
 
 
 ZooKeeper
@@ -337,6 +353,10 @@ un noeud slave pour un cluster mesos:
 .. literalinclude:: examples/playbook.yml
    :language: yaml
 
+.. raw:: latex
+
+    \clearpage
+
 Dans chaque playbook, il est nécessaire de définir la machine sur laquelle
 on désire déployer nos services (ici :code:`nodes`) ainsi que l'utilisateur qui
 s'y connecte (:code:`vagrant` comme il s'agit d'une machine Vagrant).
@@ -387,35 +407,235 @@ de machines en quelques minutes.
 Gestion de projet
 =================
 
+Cette partie décrit la manière dont le projet a été géré au niveau de
+sa planification et de la gestion des risques.
+
 Planification
 -------------
+
+**Insérer la planification ou la mettre en annexes. Mettre
+la première planification puis la deuxième? À voir.**
+
+La première phase du projet (10 premières semaines) ont consisté à prendre
+en main les outils et technologies présentées précédemment; Vagrant,
+Mesosphere (Mesos et Marathon), le système d'exploitation
+`CentOS <https://www.centos.org/>`_ (dérivé de la distribution
+`Red Hat <https://www.redhat.com/en>`_) et Ansible.
+
+À défaut de se lancer directement dans l'implémentation d'une solution,
+cette approche a permis de mieux comprendre la problématique.
+Cette dernière n'était pas évidente à comprendre car complexe pour
+un développeur qui n'a pas de connaissances préalable en systèmes distribués
+et en PaaS.
 
 Définition et gestion des risques
 ---------------------------------
 
+- Nombreuses technologies à prendre en main par rapport au temps mis
+  à disposition.
+- Synchronisation développeur - mandant.
+- Ressources matériels à disposition insuffisantes pour développer et
+  effectuer des tests.
+
 Conception
 ==========
+
+Architecture générale
+---------------------
+
+Si le schéma dans l'introduction suffit pas besoin d'en présenter un similaire
+ici.
+
+Base de données
+---------------
+
+Architecture logicielle
+-----------------------
+
+- Django
+
+  - Normalement MVT (Model View Template) mais pas de template car API
 
 Implémentation
 ==============
 
-Difficultés
------------
+API
+---
 
-- Première phase de communication avec le mandant
-  - Malentendu au début du projet
-  - Difficultés techniques, technologies à prendre en main
-  - Temps à disposition du mandant qui est surchargé
-  - Résolution: un cahier des charges a finalement pu être défini
-- Nombreuses technologies à prendre en main pour comprendre la problématique
+Extraction des métadonnées
+--------------------------
 
-Atteintes des objectifs
------------------------
+Interaction avec l'API Marathon
+-------------------------------
 
-- Le contexte du mandant a-t-il été compris?
-- L'API se superposant à Marathon fonctionne-t-elle?
-- Un démonstrateur a-t-il été développé?
+Tests
+=====
 
+Cette partie décrit les techniques utilisées pour tester l'application.
+L'application passe par plusieurs étapes de validation. Une première vise
+à vérifier que le code respecte certaines métriques. La seconde consiste
+à tester certaines fonctionnalités séparément (tests unitaires).
+
+Comme lancer les tests peut s'avérer long et peut potentiellement être
+une tâche que le développeur peut oublier d'exécuter, un outils d'intégration
+continue a été utilisé pour automatiser le lancement des tests.
+
+Tests unitaires
+---------------
+
+Afin d'éviter des régressions et de garder un code respectant
+le `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_, plusieurs outils
+ont été utilisés. L'environnement python propose plusieurs logiciels permettant
+de garder le code lisible et de le valider.
+`YAPF <https://github.com/google/yapf>`_ (Yet Another Python Formatter) permet
+de réindenter le code de manière à ce qu'il respecte le PEP8.
+`flake8 <http://flake8.pycqa.org/en/latest/>`_ permet de vérifier que le code
+respecte le PEP8.
+Concernant les tests unitaires, Django propose déjà une extension permettant
+d'effectuer des tests. Il suffit de définir un test case, une méthode
+:code:`setUp` qui permet d'instancier par exemple un client pour tester
+une API. Il suffit ensuite de définir des méthodes suivant le pattern
+:code:`test_what_you_test` implémentant chacune un test unitaire.
+Il est ensuite possible d'utiliser des assertions afin de valider
+les résultats.
+
+.. raw:: latex
+
+    \clearpage
+
+Voici un exemple définissant un cas de test avec deux tests unitaires:
+
+.. code-block:: python
+
+    from django.test import TestCase
+    from .services import MicrobadgerService
+
+
+    class MicrobadgerTestCase(TestCase):
+        def setUp(self):
+            pass
+
+        def test_service_can_fetch_data_and_create_model(self):
+            microbadger_data = MicrobadgerService.get_docker_metadata(
+                'hbpmip', 'portal-backend')
+            self.assertIsNotNone(microbadger_data)
+
+        def test_service_handle_non_existent_image(self):
+            microbadger_data = MicrobadgerService.get_docker_metadata(
+                'toto', 'portal-backend')
+            self.assertIsNone(microbadger_data)
+
+Le développeur est supposé lancer tous les tests suivants afin de valider
+son code et de vérifier qu'il n'y a aucune régression:
+
+1. Utiliser YAPF et flak8 sur tous les scripts python *qui n'ont pas été générés
+   automatiquement*.
+2. Lancer les tests unitaires de Django pour déceler les éventuelles régressions.
+
+Si tous les tests passent, le développeur peut commiter et pusher
+ses modification sur le dépôt. La qualité du code reste acceptable tant que
+le développeur effectue ces vérifications avant chaque commit.
+Le problème est que ce genre de tâches sont facilement oubliées et ne sont pas
+réalisées avant chaque commit. C'est là que vient l'intérêt d'utiliser
+un outil d'intégration continue (*CI*) comme
+`Travis CI <https://travis-ci.org/>`_.
+
+Travis CI: un outil d'intégration continue
+------------------------------------------
+
+Ce type d'outils permet de monitorer le dépôt Git d'un projet et de réaliser
+des actions à chaque nouveau push. De cette manière, on peut facilement
+lancer les tests à chaque push et ainsi éliminer la probabilité que le projet
+soit «cassé» sans que le développeur s'en rendre compte rapidement.
+En général, les CI donnent accès aux logs de chaque build/batterie de test et
+notifient le développeur par email si une erreur est survenue.
+
+Travis a été choisi car il est prévu pour exécuter des tests unitaires et
+supporte de nombreux langages (Python, Ruby, C, PHP, Java, etc.). À cela
+s'ajoute le fait que ce CI est facile à configurer.
+Il suffit de réaliser les actions suivantes pour utiliser Travis CI pour
+son projet:
+
+1. Se connecter à `https://travis-ci.org/ <https://travis-ci.org/>`_ avec
+   son compte GitHub.
+2. Ajouter le dépôt GitHub aux dépôts que Travis doit surveiller.
+3. Créer un fichier :code:`.travis.yml` et l'ajouter dans le dépôt. Ce fichier
+   décrit la configuration de Travis; language, OS,
+   installation des dépendances, scripts de tests, etc.
+
+.. raw:: latex
+
+    \clearpage
+
+Si la configuration est bien faite, Travis devrait builder à chaque push sur
+le dépôt. Pour tester, il suffit de modifier un fichier du dépôt puis
+de commiter et pusher ses modifications sur le dépôt. Si le build passe ou
+échoue, un email de notification est envoyé aux développeur. Il est également
+possible de vérifier l'état du dernier build ainsi que l'historique des builds
+sur le site de Travis.
+
+Voici un exemple de fichier de configuration pour Travis CI:
+
+.. code-block:: yaml
+
+    language: python
+    python:
+      - "3.6"
+    install:
+      - pip install flake8
+      - pip install -r requirements.txt
+    before_script:
+      - flake8 maracker
+    script:
+    - python maracker/manage.py test
+
+Ici on spécifie que le langage du projet est :code:`Python` et que la version
+de Python à utiliser est :code:`python 3.6`. On définit ensuite comment
+les dépendences doivent être installées (ici avec :code:`pip install`).
+Une fois les dépendances installées, on entre dans la partie avant les tests
+qui consiste à vérifier que le code respecte le PEP8.
+Finalement, on lance les tests avec le fichier :code:`manage.py` de Django.
+
+Difficultés et problèmes rencontrés
+===================================
+
+Même si la communication n'a pas été simple au début du projet et que
+les objectifs ont mis plus longtemps que prévu à être définis, une ligne
+directive plus claire a pu être donnée lors de la deuxième phase du projet.
+
+Le nombre de technologies dans l'écosystème n'a pas favorisé la compréhension
+de la problématique mais en tester une partie a permis de mieux comprendre
+les besoins du mandant. Les connaissances de l'équipe de développeurs du CHUV
+ont également pu aider le développeur lorsqu'il avait des questions.
+
+Conclusion
+==========
+
+- Atteintes des objectifs
+
+  - Le contexte du mandant a-t-il été compris?
+  - L'API se superposant à Marathon fonctionne-t-elle?
+  - Un format de métadonnées a-t-il été spécifié? Existe-t-il un moyen
+    de vérifier que telle ou telle image Docker respecte ce format?
+  - Un démonstrateur a-t-il été développé?
+
+- Améliorations possibles
+
+.. Le développeur a pris un risque en prenant en tester des technologies
+.. qu'il n'utiliserait peut-être même pas mais cela lui a permis de mieux saisir
+.. la problématique.
+
+Analyse critique
+----------------
+
+Résultats
+---------
+
+Conclusion
+----------
+
+Remerciements
+=============
 
 .. Indices and tables
 .. ==================
