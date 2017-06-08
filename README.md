@@ -9,7 +9,13 @@ API aiming to make Human Brain Project's [Medical Informatics Platform's](https:
 * PostgreSQL
 * Python 3.6+
 
-*The docker images you want to enter into the database **must** be indexed on the [MicroBadger platform](https://microbadger.com/) as Maracker depends on this API.*
+*The docker images you want to enter into the database **must** be indexed
+on the [MicroBadger platform](https://microbadger.com/) as Maracker depends
+on this API.*
+
+Here's a [guide](https://medium.com/microscaling-systems/microbadger-keep-your-metadata-fresh-with-a-webhook-651ee26cd4a6)
+explaining how to keep your container's metadatas up-to-date in MicroBadger
+using a webhook.
 
 ## Installation for local testing
 
