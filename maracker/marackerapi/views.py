@@ -9,7 +9,7 @@ class CreateView(generics.ListCreateAPIView):
     serializer_class = MipApplicationSerializer
 
     def perform_create(self, serializer):
-        """Create a new MipApplication entry into the daatabase."""
+        """Create a new MipApplication entry into the database."""
         serializer.save()
 
 
