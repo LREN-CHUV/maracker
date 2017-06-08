@@ -4,6 +4,13 @@ API aiming to make Human Brain Project's [Medical Informatics Platform's](https:
 
 [![Build Status](https://travis-ci.org/groovytron/maracker.svg?branch=master)](https://travis-ci.org/groovytron/maracker)
 
+## Requirements
+
+* PostgreSQL
+* Python 3.6+
+
+*The docker images you want to enter into the database **must** be indexed on the [MicroBadger platform](https://microbadger.com/) as Maracker depends on this API.*
+
 ## Installation for local testing
 
 Assuming you already have a working instance of **PostgreSQL** and **Python 3.6**
