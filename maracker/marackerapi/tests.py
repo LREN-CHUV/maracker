@@ -3,6 +3,8 @@ from .services import MicrobadgerService
 
 
 class MicrobadgerTestCase(TestCase):
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
     def setUp(self):
         pass
 

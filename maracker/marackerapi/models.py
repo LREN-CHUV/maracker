@@ -7,7 +7,7 @@ class MipApplication(models.Model):
 
     docker_namespace = models.CharField(max_length=50, blank=False)
     docker_image = models.CharField(max_length=50, blank=False)
-    description = models.TextField(default='no description available')
+    description = models.TextField(default="no description available")
     cpu = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -18,6 +18,9 @@ class MipApplication(models.Model):
         validators=[MinValueValidator(32)
                     ],  # 32 due to Marathon's minimum constraint
         default=32)
+
+    class Meta:
+        unique_together = ("docker_namespace", "docker_image")
 
     def __str__(self):
         """ Return human readable represention of the instance """

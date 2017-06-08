@@ -1,0 +1,8 @@
+- model: marackerapi.mipapplication
+  pk: 14
+  fields: {docker_namespace: hbpmip, docker_image: woken, description: An orchestration
+      platform for Docker containers running data mining algorithms, cpu: '0.6', memory: 2048}
+- model: marackerapi.mipapplication
+  pk: 15
+  fields: {docker_namespace: hbpmip, docker_image: portal-backend, description: Java
+      backend for the MIP portal, cpu: '1.5', memory: 2048}
