@@ -48,8 +48,8 @@ de machines avec les technologies de Mesosphere (Mesos et Marathon).
 
    \clearpage
 
-État de l'art
--------------
+Introduction aux systèmes distribués
+------------------------------------
 
 Afin de bien comprendre la problématique, il est préférable de commencer
 par présenter le fonctionnement et l'intérêt des systèmes distribués.

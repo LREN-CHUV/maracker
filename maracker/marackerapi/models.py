@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator
 
 
 class MipApplication(models.Model):
-    """ Represent a MIP developped app deployable on Marathon """
+    """Represent a MIP app deployable on Marathon"""
 
     docker_namespace = models.CharField(max_length=50, blank=False)
     docker_image = models.CharField(max_length=50, blank=False)
@@ -24,4 +24,4 @@ class MipApplication(models.Model):
 
     def __str__(self):
         """ Return human readable represention of the instance """
-        return "{}".format(self.docker_name)
+        return "{}/{}".format(self.docker_namespace, self.docker_image)
