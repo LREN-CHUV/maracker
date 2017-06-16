@@ -8,8 +8,8 @@
   "output-files": [],
   "container-image": {
     "type": "docker",
-    "image": "hbpmip/woken",
-    "index": "https://hub.docker.com"
+    "image": "hbpmip/portal-frontend",
+    "index": "https://hub.docker.com/r/hbpmip/portal-frontend/"
   },
   "environment-variables": [
     {

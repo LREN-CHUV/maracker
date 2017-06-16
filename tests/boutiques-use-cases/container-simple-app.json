@@ -9,6 +9,6 @@
   "container-image": {
     "type": "docker",
     "image": "hbpmip/woken",
-    "index": "https://hub.docker.com"
+    "index": "https://hub.docker.com/r/hbpmip/woken/"
   }
 }
