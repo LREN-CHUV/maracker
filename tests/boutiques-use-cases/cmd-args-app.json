@@ -9,7 +9,9 @@
       "id": "PORT",
       "name": "HTTP PORT",
       "type": "Number",
-      "description": "The port at which the server will be reachable"
+      "description": "The port at which the server will be reachable",
+      "value-key": "[PORT]",
+      "integer": true
     }
   ],
   "output-files": []
