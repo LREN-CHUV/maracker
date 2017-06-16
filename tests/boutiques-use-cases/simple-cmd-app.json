@@ -1,0 +1,9 @@
+{
+  "name": "simple command to launch",
+  "description": "simple application that can be launched without any parameters and withtout a container",
+  "schema-version": "0.4",
+  "tool-version": "0.0.1",
+  "command-line": "python -m SimpleHTTPServer",
+  "inputs": [],
+  "output-files": []
+}
