@@ -1,7 +1,10 @@
 import json
 from jsonschema import validate
 
-files_to_test = ["simple-cmd-app.json", "simple-container-app.json"]
+files_to_test = [
+    "cmd-simple-app.json", "container-simple-app.json", "cmd-args-app.json",
+    "container-env_vars-app.json"
+]
 
 if __name__ == "__main__":
     with open('boutiques.0.4.schema.json', 'r') as f:
