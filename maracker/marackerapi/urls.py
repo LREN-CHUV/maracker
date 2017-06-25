@@ -1,10 +1,12 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import CreateView, DetailsView
+from .views import CmdAppCreateView, CmdAppDetailsView
 
 urlpatterns = {
-    url(r'^mipapps/?$', CreateView.as_view(), name="create"),
-    url(r'^mipapps/(?P<pk>[0-9]+)/?$', DetailsView.as_view(), name="details"),
+    url(r'^cmdapps/?$', CmdAppCreateView.as_view(), name="cmd_app.create"),
+    url(r'^cmdapps/(?P<pk>[0-9]+)/?$',
+        CmdAppDetailsView.as_view(),
+        name="cmd_app.details")
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)
