@@ -1,0 +1,24 @@
+{
+  "id": "outyet",
+  "cpus": 0.1,
+  "mem": 32,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "outyet",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 0
+        }
+      ],
+      "forcePullImage": false
+    }
+  },
+  "env": {
+    "TOTO": "12",
+    "TITI": "Hello World!"
+  }
+}

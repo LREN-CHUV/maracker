@@ -3,7 +3,7 @@ from jsonschema import validate
 
 files_to_test = [
     "cmd-simple-app.json", "container-simple-app.json", "cmd-args-app.json",
-    "container-env_vars-app.json"
+    "container-env_vars-app.json", "should_not_pass.json"
 ]
 
 if __name__ == "__main__":

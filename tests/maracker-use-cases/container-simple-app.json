@@ -1,14 +1,9 @@
 {
   "name": "simple command to launch",
   "description": "simple application that can be launched within a container no environment variables are needed",
-  "schema-version": "0.4",
-  "tool-version": "0.0.1",
-  "command-line": " ",
-  "inputs": [],
-  "output-files": [],
   "container-image": {
     "type": "docker",
     "image": "hbpmip/woken",
-    "index": "http://index.docker.io"
+    "index": "https://hub.docker.com/r/hbpmip/woken/"
   }
 }

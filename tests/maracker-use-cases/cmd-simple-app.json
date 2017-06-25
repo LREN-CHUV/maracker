@@ -1,0 +1,7 @@
+{
+  "name": "simple command to launch",
+  "description": "simple application that can be launched without any parameters and withtout a container",
+  "command-line": "python -m SimpleHTTPServer",
+  "cpus": 0.2,
+  "memory": 32
+}

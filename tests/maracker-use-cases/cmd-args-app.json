@@ -1,0 +1,14 @@
+{
+  "name": "simple command to launch",
+  "description": "simple application that has to be launched with parameters and withtout a container",
+  "command-line": "python -m SimpleHTTPServer [PORT]",
+  "inputs": [
+    {
+      "id": "PORT",
+      "name": "HTTP PORT",
+      "type": "Number",
+      "description": "The port at which the server will be reachable",
+      "value-key": "[PORT]"
+    }
+  ]
+}

@@ -1,17 +1,12 @@
 {
   "name": "simple command to launch",
   "description": "simple application that can be launched within a container whose some environment variables need to be set",
-  "schema-version": "0.4",
-  "tool-version": "0.0.1",
-  "command-line": " ",
-  "inputs": [],
-  "output-files": [],
-  "container-image": {
+  "container_image": {
     "type": "docker",
     "image": "hbpmip/portal-frontend",
-    "index": "http://index.docker.io"
+    "index": "https://hub.docker.com/r/hbpmip/portal-frontend/"
   },
-  "environment-variables": [
+  "environment_variables": [
     {
       "name": "WORKER_PROCESSES",
       "description": "number of Nginx worker processes. Should equal the number of CPUs made available to the Docker container",
