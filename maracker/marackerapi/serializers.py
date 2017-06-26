@@ -58,3 +58,22 @@ class CmdAppSerializer(serializers.ModelSerializer):
             MarathonCmd.objects.create(cmd_app=cmd_application, **conf_data)
 
         return cmd_application
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description',
+                                                  instance.description)
+        instance.command = validated_data.get('command', instance.command)
+        instance.vcs_url = validated_data.get('vcs_url', instance.vcs_url)
+        instance.save()
+
+        # marathon_confs = validated_data.get('marathoncmd_set', [])
+        # marathon_set = instance.marathoncmd_set.all()
+
+        # for config in marathon_confs:
+        #     if config.get('id', None) is not None:
+        #         print('exists')
+        #     else:
+        #         print('needs to be created')
+
+        return instance

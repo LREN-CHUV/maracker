@@ -29,8 +29,6 @@ class MicrobadgerTestCase(TestCase):
 
 
 class CmdAppTestCase(TestCase):
-    # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
-
     def setUp(self):
         self.cmd_app = CmdApp(
             name="sleepy command",
@@ -50,8 +48,6 @@ class CmdAppTestCase(TestCase):
 
 
 class DockerAppTestCase(TestCase):
-    # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
-
     def setUp(self):
         self.docker_app = DockerApp(
             name="postgres",
@@ -73,6 +69,8 @@ class DockerAppTestCase(TestCase):
 
 
 class APICmdAppTestCase(TestCase):
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
     def setUp(self):
         self.client = APIClient()
         self.cmd_app_data = {
@@ -107,8 +105,26 @@ class APICmdAppTestCase(TestCase):
         cmd_app = CmdApp.objects.get(pk=response.data["id"])
         self.assertTrue(cmd_app.marathoncmd_set.all())
 
+    def test_api_can_update_cmd_app(self):
+        app = CmdApp.objects.get(pk=1)
+        response = self.client.get(
+            reverse("cmd_app.details", kwargs={'pk': app.id}))
+        app_data = response.data
+        app_data["name"] = "env"
+        app_data["command"] = "env"
+        app_data[
+            "description"] = "Simple command showing environment variables"
+        response = self.client.put(
+            reverse("cmd_app.details", kwargs={'pk': app.id}),
+            app_data,
+            format="json")
+        self.assertEqual(response.data, app_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class APIDockerAppTestCase(TestCase):
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
     def setUp(self):
         self.client = APIClient()
         self.docker_app_data = {
