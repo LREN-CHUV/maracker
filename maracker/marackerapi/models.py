@@ -8,6 +8,7 @@ class CmdApp(models.Model):
     name = models.CharField(max_length=50, blank=False)
     description = models.TextField(default="no description available")
     command = models.TextField(blank=False)
+    vcs_url = models.URLField(blank=True, max_length=2000)
 
     def __str__(self):
         return "{self.id}: {self.name}".format(self=self)
@@ -18,6 +19,7 @@ class DockerApp(models.Model):
     description = models.TextField(default="no description available")
     namespace = models.CharField(max_length=50, blank=False)
     image = models.CharField(max_length=50, blank=False)
+    vcs_url = models.URLField(blank=True, max_length=2000)
 
     class Meta:
         unique_together = ("namespace", "image")

@@ -20,7 +20,7 @@ class DockerAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DockerApp
-        fields = ('id', 'name', 'description', 'namespace', 'image',
+        fields = ('id', 'name', 'description', 'namespace', 'image', 'vcs_url',
                   'marathon_docker')
 
     def create(self, validated_data):
@@ -44,7 +44,8 @@ class CmdAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CmdApp
-        fields = ('id', 'name', 'description', 'command', 'marathon_cmd')
+        fields = ('id', 'name', 'description', 'command', 'vcs_url',
+                  'marathon_cmd', )
 
     def create(self, validated_data):
         marathon_configs_data = validated_data.get('marathoncmd_set', [])

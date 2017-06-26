@@ -84,6 +84,7 @@ class APICmdAppTestCase(TestCase):
             "name": "Cmd command with its marathon configuration",
             "description": "Just to test nested relationships",
             "command": "echo 'hello'",
+            "vcs_url": "https://github.com/groovytron/maracker",
             "marathon_cmd": [
                 {
                     "cpu": 0.6,
@@ -125,6 +126,8 @@ class APIDockerAppTestCase(TestCase):
             "library",
             "image":
             "nginx",
+            "vcs_url":
+            "https://github.com/nginxinc/docker-nginx",
             "marathon_docker": [
                 {
                     "cpu": 0.2,
