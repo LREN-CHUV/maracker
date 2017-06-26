@@ -10,7 +10,7 @@ class CmdApp(models.Model):
     command = models.TextField(blank=False)
 
     def __str__(self):
-        return "{self.id}: {self.name}".format(self)
+        return "{self.id}: {self.name}".format(self=self)
 
 
 class DockerApp(models.Model):
@@ -23,7 +23,7 @@ class DockerApp(models.Model):
         unique_together = ("namespace", "image")
 
     def __str__(self):
-        return "{self.namespace}/{self.image}".format(self)
+        return "{self.namespace}/{self.image}".format(self=self)
 
 
 class MarathonCmd(models.Model):
@@ -42,7 +42,8 @@ class MarathonCmd(models.Model):
     cmd_app = models.ForeignKey(CmdApp, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{self.id}, cpu: {self.cpu}, memory: {self.memory}".format(self)
+        return "{self.id}, cpu: {self.cpu}, memory: {self.memory}".format(
+            self=self)
 
 
 class MarathonDocker(models.Model):
@@ -67,4 +68,4 @@ class MarathonDocker(models.Model):
 
     def __str__(self):
         return "Docker Marathon config: id={self.id}, cpu={self.cpu}".format(
-            self)
+            self=self)
