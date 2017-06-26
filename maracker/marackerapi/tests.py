@@ -227,3 +227,74 @@ class APIDockerAppTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         docker_app = DockerApp.objects.get(pk=response.data["id"])
         self.assertTrue(docker_app.marathondocker_set.all())
+
+    def test_api_can_update_docker_app(self):
+        app = DockerApp.objects.get(pk=2)
+        before_count = app.marathondocker_set.count()
+
+        # Test detail view and get JSON to update the model
+        response = self.client.get(
+            reverse("cmd_app.details", kwargs={'pk': app.id}))
+        app_data = response.data
+        app_data["name"] = "woken"
+        app_data["namespace"] = "hbpmip"
+        app_data["image"] = "woken"
+        app_data["description"] = (
+            "An orchestration platform for Docker containers"
+            " running data mining algorithms.")
+
+        # Test PUT method (marathon configuration should not be overwritten)
+        response = self.client.put(
+            reverse("docker_app.details", kwargs={'pk': app.id}),
+            app_data,
+            format="json")
+
+        after_count = app.marathondocker_set.count()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(before_count, after_count)
+
+    # def test_api_can_overwrite_marathon_config(self):
+    #     app = DockerApp.objects.get(pk=2)
+    #     before_count = app.marathondocker_set.count()
+
+    #     # Test detail view and get JSON to update the model
+    #     response = self.client.get(
+    #         reverse("docker_app.details", kwargs={'pk': app.id}))
+    #     app_data = response.data
+    #     app_data["name"] = "woken"
+    #     app_data["namespace"] = "hbpmip"
+    #     app_data["image"] = "woken"
+    #     app_data["description"] = (
+    #         "An orchestration platform for Docker containers"
+    #         " running data mining algorithms.")
+    #     app_data["marathon_docker"] = [
+    #         {
+    #             "cpu": 1.0,
+    #             "memory": 32,
+    #             "env_vars": {
+    #                 "WOKEN_HOST": "foobar.com"
+    #             }
+    #         },
+    #         {
+    #             "cpu": 0.5,
+    #             "memory": 64,
+    #             "ports": [1534, 32432]
+    #         },
+    #         {
+    #             "cpu": 2.0,
+    #             "memory": 1024
+    #         },
+    #     ]
+
+    #     # Test PUT method (marathon configuration should be overwritten)
+    #     response = self.client.put(
+    #         reverse("docker_app.details", kwargs={'pk': app.id}),
+    #         app_data,
+    #         format="json")
+
+    #     after_count = app.marathondocker_set.count()
+
+    #     print(response.__dict__)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     self.assertNotEqual(before_count, after_count)

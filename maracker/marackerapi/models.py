@@ -64,7 +64,8 @@ class MarathonDocker(models.Model):
     ports = ArrayField(
         models.PositiveIntegerField(
             validators=[MinValueValidator(0),
-                        MaxValueValidator(65535)]))
+                        MaxValueValidator(65535)]),
+        blank=True)
     env_vars = HStoreField(default=dict())
     docker_app = models.ForeignKey(DockerApp, on_delete=models.CASCADE)
 
