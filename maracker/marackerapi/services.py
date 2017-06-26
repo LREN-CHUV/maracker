@@ -1,5 +1,7 @@
 import requests
 import json
+from django.conf import settings
+from django.template.loader import render_to_string
 
 
 class MicrobadgerService:
@@ -30,3 +32,18 @@ class MicrobadgerMetadata:
         self.author = docker_meta["Author"]
         self.description = labels["org.label-schema.description"]
         self.memory = labels["org.label-schema.memory-hint"]
+
+
+class MarathonService:
+    api_url = settings.MARATHON['URL']
+
+    @staticmethod
+    def test_me(app, marathon_config):
+        # print(MarathonService.api_url)
+        json_text = render_to_string('cmd-application.txt', {
+            'app': app,
+            'marathon_config': marathon_config
+        })
+        # print(json_text)
+        json_obj = json.loads(json_text)
+        print(json_obj)

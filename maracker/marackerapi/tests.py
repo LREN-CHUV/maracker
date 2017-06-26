@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .services import MicrobadgerService
+from .services import MicrobadgerService, MarathonService
 from .models import CmdApp, MarathonCmd, DockerApp, MarathonDocker
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -26,6 +26,17 @@ class MicrobadgerTestCase(TestCase):
     def test_service_handle_unexpected_values(self):
         microbadger_data = MicrobadgerService.get_docker_metadata(None, None)
         self.assertIsNone(microbadger_data)
+
+
+class MarathonServiceTestCase(TestCase):
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
+    def setUp(self):
+        self.cmd_app = CmdApp.objects.get(pk=1)
+
+    def test_marathon_service(self):
+        MarathonService.test_me(self.cmd_app,
+                                self.cmd_app.marathoncmd_set.first())
 
 
 class CmdAppTestCase(TestCase):

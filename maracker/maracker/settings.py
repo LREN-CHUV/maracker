@@ -127,3 +127,5 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer', ),
 }
+
+MARATHON = {'URL': os.environ.get('MARATHON_URL', 'http://192.168.33.10:8080')}

@@ -1,0 +1,11 @@
+{
+  "id": "{{ app.name }}",
+  {% if marathon_config.args %}
+  "cmd": "{{ app.command }} {{ marathon_config.args }}",
+  {% else %}
+  "cmd": "{{ app.command }}",
+  {% endif %}
+  "cpus": {{ marathon_config.cpu }},
+  "mem": {{ marathon_config.memory }},
+  "instances": 0
+}
