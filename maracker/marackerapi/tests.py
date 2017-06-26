@@ -107,6 +107,9 @@ class APICmdAppTestCase(TestCase):
 
     def test_api_can_update_cmd_app(self):
         app = CmdApp.objects.get(pk=1)
+        before_count = app.marathoncmd_set.count()
+
+        # Test detail view and get JSON to update the model
         response = self.client.get(
             reverse("cmd_app.details", kwargs={'pk': app.id}))
         app_data = response.data
@@ -114,12 +117,55 @@ class APICmdAppTestCase(TestCase):
         app_data["command"] = "env"
         app_data[
             "description"] = "Simple command showing environment variables"
+
+        # Test PUT method (marathon configuration should not be overwritten)
         response = self.client.put(
             reverse("cmd_app.details", kwargs={'pk': app.id}),
             app_data,
             format="json")
-        self.assertEqual(response.data, app_data)
+
+        after_count = app.marathoncmd_set.count()
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(before_count, after_count)
+
+    def test_api_can_overwrite_marathon_config(self):
+        app = CmdApp.objects.get(pk=1)
+        before_count = app.marathoncmd_set.count()
+
+        # Test detail view and get JSON to update the model
+        response = self.client.get(
+            reverse("cmd_app.details", kwargs={'pk': app.id}))
+        app_data = response.data
+        app_data["name"] = "env"
+        app_data["command"] = "env"
+        app_data[
+            "description"] = "Simple command showing environment variables"
+        app_data["marathon_cmd"] = [
+            {
+                "cpu": 1.0,
+                "memory": 32
+            },
+            {
+                "cpu": 0.5,
+                "memory": 64
+            },
+            {
+                "cpu": 2.0,
+                "memory": 1024
+            },
+        ]
+
+        # Test PUT method (marathon configuration should be overwritten)
+        response = self.client.put(
+            reverse("cmd_app.details", kwargs={'pk': app.id}),
+            app_data,
+            format="json")
+
+        after_count = app.marathoncmd_set.count()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(before_count, after_count)
 
 
 class APIDockerAppTestCase(TestCase):
