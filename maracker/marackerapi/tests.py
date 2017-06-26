@@ -1,6 +1,6 @@
 from django.test import TestCase
 from .services import MicrobadgerService
-from .models import CmdApp, MarathonCmd
+from .models import CmdApp, MarathonCmd, DockerApp, MarathonDocker
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.core.urlresolvers import reverse
@@ -49,7 +49,30 @@ class CmdAppTestCase(TestCase):
         self.assertNotEqual(before_count, after_count)
 
 
-class APITestCase(TestCase):
+class DockerAppTestCase(TestCase):
+    # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
+    def setUp(self):
+        self.docker_app = DockerApp(
+            name="postgres",
+            description="Simple postgres container",
+            namespace="library",
+            image="postgres")
+
+    def test_app_creation_and_marathon_conf_creation(self):
+        before_count = DockerApp.objects.count()
+        self.docker_app.save()
+        after_count = DockerApp.objects.count()
+        self.assertNotEqual(before_count, after_count)
+        before_count = MarathonDocker.objects.count()
+        marathon_docker = MarathonDocker(
+            cpu=0.3, memory=128, ports=[5432], docker_app=self.docker_app)
+        marathon_docker.save()
+        after_count = MarathonDocker.objects.count()
+        self.assertNotEqual(before_count, after_count)
+
+
+class APICmdAppTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.cmd_app_data = {
@@ -61,10 +84,12 @@ class APITestCase(TestCase):
             "name": "Cmd command with its marathon configuration",
             "description": "Just to test nested relationships",
             "command": "echo 'hello'",
-            "marathon_cmd": [{
-                "cpu": 0.6,
-                "memory": 256
-            }]
+            "marathon_cmd": [
+                {
+                    "cpu": 0.6,
+                    "memory": 256
+                },
+            ]
         }
 
     def test_api_can_create_cmd_app(self):
@@ -80,3 +105,60 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         cmd_app = CmdApp.objects.get(pk=response.data["id"])
         self.assertTrue(cmd_app.marathoncmd_set.all())
+
+
+class APIDockerAppTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.docker_app_data = {
+            "name": "postgres database container",
+            "description": "container embedding postgreSQL database service",
+            "namespace": "library",
+            "image": "postgres"
+        }
+        self.docker_app_with_marathon = {
+            "name":
+            "nginx http server container",
+            "description":
+            "container embedding nginx http server and reverse proxy service",
+            "namespace":
+            "library",
+            "image":
+            "nginx",
+            "marathon_docker": [
+                {
+                    "cpu": 0.2,
+                    "memory": 512,
+                    "version": "latest",
+                    "ports": [8080],
+                    "env_vars": {
+                        "NGINX_PORT": 8080,
+                        "NGINX_HOST": "foobar.com"
+                    }
+                },
+                {
+                    "cpu": 0.1,
+                    "memory": 32,
+                    "version": "latest",
+                    "ports": [80],
+                    "env_vars": {
+                        "NGINX_PORT": 80,
+                        "NGINX_HOST": "example.com"
+                    }
+                },
+            ]
+        }
+
+    def test_api_can_create_docker_app(self):
+        response = self.client.post(
+            reverse("docker_app.create"), self.docker_app_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_api_can_create_docker_app_with_marathon_config(self):
+        response = self.client.post(
+            reverse("docker_app.create"),
+            self.docker_app_with_marathon,
+            format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        docker_app = DockerApp.objects.get(pk=response.data["id"])
+        self.assertTrue(docker_app.marathondocker_set.all())
