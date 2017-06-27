@@ -1,0 +1,16 @@
+version: '2'
+
+services:  
+  postgres:
+    restart: always
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    network_mode: "bridge"
+
+  maracker:
+    restart: always
+    build: .
+    network_mode: "bridge"
+    depends_on:
+      - postgres
