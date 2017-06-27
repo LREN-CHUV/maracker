@@ -37,6 +37,7 @@ class MarathonServiceTestCase(TestCase):
             self.skipTest('skipped test as a Marathon instance is needed')
 
         self.cmd_app = CmdApp.objects.get(pk=1)
+        self.docker_app = DockerApp.objects.get(pk=2)
 
     def test_marathon_service_cmd_create_and_delete(self):
         response = MarathonService.deploy_cmd_app(
@@ -46,6 +47,17 @@ class MarathonServiceTestCase(TestCase):
 
         response = MarathonService.delete_app(
             self.cmd_app, self.cmd_app.marathoncmd_set.first())
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_marathon_service_docker_create_and_delete(self):
+        response = MarathonService.deploy_docker_app(
+            self.docker_app, self.docker_app.marathondocker_set.first())
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = MarathonService.delete_app(
+            self.docker_app, self.docker_app.marathondocker_set.first())
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

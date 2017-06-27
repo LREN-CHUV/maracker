@@ -35,7 +35,7 @@ class MarathonService:
     @staticmethod
     def deploy_cmd_app(app, marathon_config, instances=1):
         marathon_data = {
-            "id": "{app.name}.{app.id}".format(app=app),
+            "id": MarathonService.marathon_name(app),
             "cmd": app.command,
             "cpus": float(marathon_config.cpu),
             "mem": marathon_config.memory,
@@ -44,15 +44,60 @@ class MarathonService:
         if marathon_config.args:
             marathon_data["cmd"] += " {}".format(marathon_config.args)
 
+        if marathon_config.env_vars:
+            marathon_data["env"] = {
+                k: v
+                for k, v in marathon_config.env_vars.items()
+            }
+
         response = requests.post(
             MarathonService.deploy_url, json=marathon_data)
 
         return response
 
     @staticmethod
+    def deploy_docker_app(app, marathon_config, instances=1):
+        marathon_data = {
+            "id": MarathonService.marathon_name(app),
+            "cpus": float(marathon_config.cpu),
+            "mem": marathon_config.memory,
+            "instances": 1,
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "{app.namespace}/{app.image}".format(app=app),
+                    "network": "BRIDGE",
+                    "forcePullImage": False,
+                },
+            }
+        }
+        if marathon_config.ports:
+            marathon_data["container"]["docker"]["portMappings"] = [{
+                "containerPort":
+                p,
+                "hostPort":
+                0
+            } for p in marathon_config.ports]
+
+        if marathon_config.env_vars:
+            marathon_data["env"] = {
+                k: v
+                for k, v in marathon_config.env_vars.items()
+            }
+
+        response = requests.post(
+            MarathonService.deploy_url, json=marathon_data)
+
+        return response
+
+    @staticmethod
+    def marathon_name(app):
+        return "{app.name}.{app.id}".format(app=app)
+
+    @staticmethod
     def delete_app(app, marathon_config):
         response = requests.delete(
-            MarathonService.delete_url.format("{app.name}.{app.id}".format(
-                app=app)))
+            MarathonService.delete_url.format(
+                MarathonService.marathon_name(app)))
 
         return response
