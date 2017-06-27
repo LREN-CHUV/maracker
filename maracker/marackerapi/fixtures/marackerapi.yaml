@@ -1,6 +1,6 @@
 -   model: marackerapi.cmdapp
     pk: 1
-    fields: {name: git, description: test command using git manual entry, command: git,
+    fields: {name: simple-http-server, description: test command using an http server, command: python -m SimpleHTTPServer,
         vcs_url: 'https://github.com/git/git'}
 -   model: marackerapi.dockerapp
     pk: 2
@@ -8,7 +8,7 @@
         image: redis, vcs_url: 'https://github.com/docker-library/redis'}
 -   model: marackerapi.marathoncmd
     pk: 1
-    fields: {cpu: '0.1', memory: 32, args: help -a, env_vars: '{"var1": "12", "var2":
+    fields: {cpu: '0.1', memory: 32, args: '$PORT0', env_vars: '{"var1": "12", "var2":
             "hello"}', cmd_app: 1}
 -   model: marackerapi.marathondocker
     pk: 1

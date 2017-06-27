@@ -1,7 +1,6 @@
 import requests
 import json
 from django.conf import settings
-from django.template.loader import render_to_string
 
 
 class MicrobadgerService:
@@ -14,12 +13,6 @@ class MicrobadgerService:
         response = requests.get(url)
         try:
             return MicrobadgerMetadata(response.json())
-            # metadata = response.json()
-            # labels = metadata["Labels"]
-            # return MipApplication(docker_name=metadata["ImageName"],
-            #         description=labels["org.label-schema.description"],
-            #         cpu=0.1,
-            #         memory=labels["org.label-schema.memory-hint"])
         except json.decoder.JSONDecodeError:
             return None
 
@@ -35,15 +28,31 @@ class MicrobadgerMetadata:
 
 
 class MarathonService:
-    api_url = settings.MARATHON['URL']
+    api_url = settings.MARATHON["URL"]
+    deploy_url = api_url + "/v2/apps"
+    delete_url = deploy_url + "/{}"
 
     @staticmethod
-    def test_me(app, marathon_config):
-        # print(MarathonService.api_url)
-        json_text = render_to_string('cmd-application.txt', {
-            'app': app,
-            'marathon_config': marathon_config
-        })
-        # print(json_text)
-        json_obj = json.loads(json_text)
-        print(json_obj)
+    def deploy_cmd_app(app, marathon_config, instances=1):
+        marathon_data = {
+            "id": "{app.name}.{app.id}".format(app=app),
+            "cmd": app.command,
+            "cpus": float(marathon_config.cpu),
+            "mem": marathon_config.memory,
+            "instancer": instances,
+        }
+        if marathon_config.args:
+            marathon_data["cmd"] += " {}".format(marathon_config.args)
+
+        response = requests.post(
+            MarathonService.deploy_url, json=marathon_data)
+
+        return response
+
+    @staticmethod
+    def delete_app(app, marathon_config):
+        response = requests.delete(
+            MarathonService.delete_url.format("{app.name}.{app.id}".format(
+                app=app)))
+
+        return response

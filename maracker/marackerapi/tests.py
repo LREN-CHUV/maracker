@@ -4,6 +4,7 @@ from .models import CmdApp, MarathonCmd, DockerApp, MarathonDocker
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.core.urlresolvers import reverse
+import os
 
 
 class MicrobadgerTestCase(TestCase):
@@ -32,11 +33,21 @@ class MarathonServiceTestCase(TestCase):
     fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
 
     def setUp(self):
+        if os.getenv('TRAVIS', False):
+            self.skipTest('skipped test as a Marathon instance is needed')
+
         self.cmd_app = CmdApp.objects.get(pk=1)
 
-    def test_marathon_service(self):
-        MarathonService.test_me(self.cmd_app,
-                                self.cmd_app.marathoncmd_set.first())
+    def test_marathon_service_cmd_create_and_delete(self):
+        response = MarathonService.deploy_cmd_app(
+            self.cmd_app, self.cmd_app.marathoncmd_set.first())
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = MarathonService.delete_app(
+            self.cmd_app, self.cmd_app.marathoncmd_set.first())
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CmdAppTestCase(TestCase):
