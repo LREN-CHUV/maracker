@@ -19,5 +19,5 @@ services:
       - DB_NAME=postgres
     command: bash -c "python manage.py migrate && python manage.py loaddata marackerapi.yaml && uwsgi --http :80 --wsgi-file maracker/wsgi.py"
     # For local testing
-    ports:
-      - "9090:80"
+    # ports:
+    #   - "9090:80"
