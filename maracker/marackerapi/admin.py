@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import MarathonCmd, MarathonDocker, CmdApp, DockerApp
+from .models import MarackerApplication, DockerContainer, MarathonConfig
 
-admin.site.register(MarathonCmd)
-admin.site.register(MarathonDocker)
-admin.site.register(CmdApp)
-admin.site.register(DockerApp)
+admin.site.register(MarackerApplication)
+admin.site.register(DockerContainer)
+admin.site.register(MarathonConfig)
