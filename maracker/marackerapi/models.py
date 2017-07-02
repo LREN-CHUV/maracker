@@ -56,6 +56,9 @@ class MarackerApplication(models.Model):
             self.slug = self._get_unique_slug()
         super().save()
 
+    def __str__(self):
+        return self.slug
+
 
 class MarathonConfig(models.Model):
     cpu = models.DecimalField(

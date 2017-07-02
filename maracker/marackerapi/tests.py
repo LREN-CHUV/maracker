@@ -1,5 +1,6 @@
 from django.test import TestCase
-from .services import MicrobadgerService, MarathonService
+from .services import MicrobadgerService
+# from .services import MarathonService
 from .models import MarackerApplication, DockerContainer, MarathonConfig
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -129,7 +130,7 @@ class DockerContainerTestCase(TestCase):
 
 
 class APIMarackerAppTestCase(TestCase):
-    # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
 
     def setUp(self):
         self.client = APIClient()
@@ -201,196 +202,39 @@ class APIMarackerAppTestCase(TestCase):
         cmd_app = MarackerApplication.objects.get(pk=response.data["id"])
         self.assertTrue(cmd_app.marathonconfig_set.all())
 
-    #     def test_api_can_update_cmd_app(self):
-    #         app = CmdApp.objects.get(pk=1)
-    #         before_count = app.marathoncmd_set.count()
-    #
-    #         # Test detail view and get JSON to update the model
-    #         response = self.client.get(
-    #             reverse("cmd_app.details", kwargs={'pk': app.id}))
-    #         app_data = response.data
-    #         app_data["name"] = "env"
-    #         app_data["command"] = "env"
-    #         app_data[
-    #             "description"] = "Simple command showing environment variables"
-    #
-    #         # Test PUT method (marathon configuration should not be overwritten)
-    #         response = self.client.put(
-    #             reverse("cmd_app.details", kwargs={'pk': app.id}),
-    #             app_data,
-    #             format="json")
-    #
-    #         after_count = app.marathoncmd_set.count()
-    #
-    #         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #         self.assertEqual(before_count, after_count)
-    #
-    #     def test_api_can_overwrite_marathon_config(self):
-    #         app = CmdApp.objects.get(pk=1)
-    #         before_count = app.marathoncmd_set.count()
-    #
-    #         # Test detail view and get JSON to update the model
-    #         response = self.client.get(
-    #             reverse("cmd_app.details", kwargs={'pk': app.id}))
-    #         app_data = response.data
-    #         app_data["name"] = "env"
-    #         app_data["command"] = "env"
-    #         app_data[
-    #             "description"] = "Simple command showing environment variables"
-    #         app_data["marathon_cmd"] = [
-    #             {
-    #                 "cpu": 1.0,
-    #                 "memory": 32
-    #             },
-    #             {
-    #                 "cpu": 0.5,
-    #                 "memory": 64
-    #             },
-    #             {
-    #                 "cpu": 2.0,
-    #                 "memory": 1024
-    #             },
-    #         ]
-    #
-    #         # Test PUT method (marathon configuration should be overwritten)
-    #         response = self.client.put(
-    #             reverse("cmd_app.details", kwargs={'pk': app.id}),
-    #             app_data,
-    #             format="json")
-    #
-    #         after_count = app.marathoncmd_set.count()
-    #
-    #         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #         self.assertNotEqual(before_count, after_count)
-    #
-    #
-    # class APIDockerAppTestCase(TestCase):
-    #     fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
-    #
-    #     def setUp(self):
-    #         self.client = APIClient()
-    #         self.docker_app_data = {
-    #             "name": "postgres database container",
-    #             "description": "container embedding postgreSQL database service",
-    #             "namespace": "library",
-    #             "image": "postgres"
-    #         }
-    #         self.docker_app_with_marathon = {
-    #             "name":
-    #             "nginx http server container",
-    #             "description":
-    #             "container embedding nginx http server and reverse proxy service",
-    #             "namespace":
-    #             "library",
-    #             "image":
-    #             "nginx",
-    #             "vcs_url":
-    #             "https://github.com/nginxinc/docker-nginx",
-    #             "marathon_docker": [
-    #                 {
-    #                     "cpu": 0.2,
-    #                     "memory": 512,
-    #                     "version": "latest",
-    #                     "ports": [8080],
-    #                     "env_vars": {
-    #                         "NGINX_PORT": 8080,
-    #                         "NGINX_HOST": "foobar.com"
-    #                     }
-    #                 },
-    #                 {
-    #                     "cpu": 0.1,
-    #                     "memory": 32,
-    #                     "version": "latest",
-    #                     "ports": [80],
-    #                     "env_vars": {
-    #                         "NGINX_PORT": 80,
-    #                         "NGINX_HOST": "example.com"
-    #                     }
-    #                 },
-    #             ]
-    #         }
-    #
-    #     def test_api_can_create_docker_app(self):
-    #         response = self.client.post(
-    #             reverse("docker_app.create"), self.docker_app_data, format="json")
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #
-    #     def test_api_can_create_docker_app_with_marathon_config(self):
-    #         response = self.client.post(
-    #             reverse("docker_app.create"),
-    #             self.docker_app_with_marathon,
-    #             format="json")
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #         docker_app = DockerApp.objects.get(pk=response.data["id"])
-    #         self.assertTrue(docker_app.marathondocker_set.all())
-    #
-    #     def test_api_can_update_docker_app(self):
-    #         app = DockerApp.objects.get(pk=2)
-    #         before_count = app.marathondocker_set.count()
-    #
-    #         # Test detail view and get JSON to update the model
-    #         response = self.client.get(
-    #             reverse("cmd_app.details", kwargs={'pk': app.id}))
-    #         app_data = response.data
-    #         app_data["name"] = "woken"
-    #         app_data["namespace"] = "hbpmip"
-    #         app_data["image"] = "woken"
-    #         app_data["description"] = (
-    #             "An orchestration platform for Docker containers"
-    #             " running data mining algorithms.")
-    #
-    #         # Test PUT method (marathon configuration should not be overwritten)
-    #         response = self.client.put(
-    #             reverse("docker_app.details", kwargs={'pk': app.id}),
-    #             app_data,
-    #             format="json")
-    #
-    #         after_count = app.marathondocker_set.count()
-    #
-    #         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #         self.assertEqual(before_count, after_count)
-    #
-    # def test_api_can_overwrite_marathon_config(self):
-    #     app = DockerApp.objects.get(pk=2)
-    #     before_count = app.marathondocker_set.count()
+    def test_api_can_update_app(self):
+        # Fetch the application to update
+        app = MarackerApplication.objects.get(pk=1)
+        before_configs = app.marathonconfig_set.count()
+        before_container_image = app.docker_container.image
 
-    #     # Test detail view and get JSON to update the model
-    #     response = self.client.get(
-    #         reverse("docker_app.details", kwargs={'pk': app.id}))
-    #     app_data = response.data
-    #     app_data["name"] = "woken"
-    #     app_data["namespace"] = "hbpmip"
-    #     app_data["image"] = "woken"
-    #     app_data["description"] = (
-    #         "An orchestration platform for Docker containers"
-    #         " running data mining algorithms.")
-    #     app_data["marathon_docker"] = [
-    #         {
-    #             "cpu": 1.0,
-    #             "memory": 32,
-    #             "env_vars": {
-    #                 "WOKEN_HOST": "foobar.com"
-    #             }
-    #         },
-    #         {
-    #             "cpu": 0.5,
-    #             "memory": 64,
-    #             "ports": [1534, 32432]
-    #         },
-    #         {
-    #             "cpu": 2.0,
-    #             "memory": 1024
-    #         },
-    #     ]
+        response = self.client.get(
+            reverse("maracker.details", kwargs={'pk': app.id}), format="json")
+        app_data = response.data
 
-    #     # Test PUT method (marathon configuration should be overwritten)
-    #     response = self.client.put(
-    #         reverse("docker_app.details", kwargs={'pk': app.id}),
-    #         app_data,
-    #         format="json")
+        # Make some changes
+        app_data["name"] = "redis"
+        app_data["docker_container"] = {
+            "image": "redis",
+            "ports": [6379],
+        }
+        app_data["marathon_configs"].append({
+            "cpus": 1.0,
+            "memory": 256,
+            "env_vars": {
+                "hostname": "http://www.example.com",
+            }
+        })
+        response = self.client.put(
+            reverse("maracker.details", kwargs={'pk': app.id}),
+            app_data,
+            format="json")
 
-    #     after_count = app.marathondocker_set.count()
+        # Fetch the model again and validate new data
+        app = MarackerApplication.objects.get(pk=1)
+        after_configs = app.marathonconfig_set.count()
+        after_container_image = app.docker_container.image
 
-    #     print(response.__dict__)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertNotEqual(before_count, after_count)
+        self.assertTrue(before_configs < after_configs)
+        self.assertIsNotNone(app.docker_container)
+        self.assertNotEqual(before_container_image, after_container_image)
