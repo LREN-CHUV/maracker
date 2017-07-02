@@ -84,44 +84,50 @@ class MarackerApplicationTestCase(TestCase):
         after_count = MarathonConfig.objects.count()
         self.assertNotEqual(before_count, after_count)
 
-    class DockerContainerTestCase(TestCase):
-        def setUp(self):
-            self.marackerapp = MarackerApplication(
-                name="postgres",
-                description="Simple postgres container", )
 
-        def test_container_creation(self):
-            self.marackerapp.save()
-            before_container = self.marackerapp.docker_container
-            self.assertTrue(before_container is None)
-            container = DockerContainer(
-                image="postgres",
-                maracker_app=self.marackerapp, )
+class DockerContainerTestCase(TestCase):
+    def setUp(self):
+        pass
 
-            before_count = DockerContainer.objects.count()
-            container.save()
-            after_count = DockerContainer.objects.count()
-            self.assertNotEqual(before_count, after_count)
+    def test_container_creation(self):
+        container = DockerContainer(image="redis", ports=[80, 6359])
 
-            self.marackerapp.docker_container = container
-            self.marackerapp.save()
-            app = MarackerApplication.get(pk=self.marackerapp.id)
-            after_container = app.docker_container
-            self.assertTrue(after_container is not None)
+        before_count = DockerContainer.objects.count()
+        container.save()
+        after_count = DockerContainer.objects.count()
+        self.assertNotEqual(before_count, after_count)
 
-    #
-    #     def test_container_with_ports_creation(self):
-    #         self.marackerapp.save()
-    #
-    #         container = DockerContainer(
-    #             image="redis", maracker_app=self.marackerapp, ports=[80, 6359])
-    #
-    #         before_count = DockerContainer.objects.count()
-    #         container.save()
-    #         after_count = DockerContainer.objects.count()
-    #         self.assertNotEqual(before_count, after_count)
-    #
-    #
+    def test_container_with_ports_creation(self):
+        container = DockerContainer(image="redis", ports=[80, 6359])
+
+        before_count = DockerContainer.objects.count()
+        container.save()
+        after_count = DockerContainer.objects.count()
+        self.assertNotEqual(before_count, after_count)
+
+    def test_marackerapp_container_relationship(self):
+        marackerapp = MarackerApplication(
+            name="postgres",
+            description="Simple postgres container", )
+
+        marackerapp.save()
+        before_container = marackerapp.docker_container
+        self.assertIsNone(before_container)
+
+        container = DockerContainer(
+            image="postgres", )
+
+        before_count = DockerContainer.objects.count()
+        container.save()
+        after_count = DockerContainer.objects.count()
+        self.assertNotEqual(before_count, after_count)
+
+        marackerapp.docker_container = container
+        marackerapp.save()
+        app = MarackerApplication.objects.get(pk=marackerapp.id)
+        after_container = app.docker_container
+        self.assertIsNotNone(after_container)
+
     # class APIMarackerAppTestCase(TestCase):
     #     # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
     #
