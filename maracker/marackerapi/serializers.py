@@ -16,6 +16,30 @@ class MarackerApplicationSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'command', 'vcs_url', 'slug',
                   'docker_container')
 
+    def create(self, validated_data):
+        container_data = validated_data.get('docker_container', None)
+        container = None
+
+        if container_data:
+            container = DockerContainer.objects.create(**container_data)
+        # heModel._meta.get_field('field_name')
+        marackerapp = MarackerApplication(
+            name=validated_data.get(
+                'name',
+                MarackerApplication._meta.get_field('name').get_default()),
+            description=validated_data.get('description', None),
+            command=validated_data.get(
+                'command',
+                MarackerApplication._meta.get_field('name').get_default()),
+            vcs_url=validated_data.get('vcs_url', ''), )
+
+        if container_data:
+            marackerapp.docker_container = container
+
+        marackerapp.save()
+
+        return marackerapp
+
 
 # class MarathonDockerSerializer(serializers.ModelSerializer):
 #     class Meta:

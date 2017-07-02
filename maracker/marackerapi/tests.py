@@ -4,7 +4,6 @@ from .models import MarackerApplication, DockerContainer, MarathonConfig
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.core.urlresolvers import reverse
-import copy
 
 # import os
 
@@ -128,41 +127,55 @@ class DockerContainerTestCase(TestCase):
         after_container = app.docker_container
         self.assertIsNotNone(after_container)
 
-    # class APIMarackerAppTestCase(TestCase):
-    #     # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
-    #
-    #     def setUp(self):
-    #         self.client = APIClient()
-    #         self.cmd_app = {
-    #             "name": "My cmd app",
-    #             "description": "be careful it's dangerous",
-    #             "command": "env"
-    #         }
-    # self.cmd_app_with_marathon = {
-    #     "name": "Cmd command with its marathon configuration",
-    #     "description": "Just to test nested relationships",
-    #     "command": "echo 'hello'",
-    #     "vcs_url": "https://github.com/groovytron/maracker",
-    #     "marathon_cmd": [
-    #         {
-    #             "cpu": 0.6,
-    #             "memory": 256
-    #         },
-    #     ]
-    # }
 
-    #     def test_api_can_create_cmd_app(self):
-    #         response = self.client.post(
-    #             reverse("maracker.create"), self.cmd_app, format="json")
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #
-    #     def test_api_can_create_app_with_container(self):
-    #         app_data = copy.deepcopy(self.cmd_app)
-    #         app_data["container"] = {"image": "postgres"}
-    #
-    #         response = self.client.post(
-    #             reverse("maracker.create"), self.cmd_app, format="json")
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+class APIMarackerAppTestCase(TestCase):
+    # fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_api_can_create_cmd_app(self):
+        cmd_app = {
+            "name": "My cmd app",
+            "description": "be careful it's dangerous",
+            "command": "env"
+        }
+        response = self.client.post(
+            reverse("maracker.create"), cmd_app, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_api_can_create_app_with_container(self):
+        # Without port exposure
+        docker_app = {
+            "name": "redis",
+            "description": "Redis container",
+            "docker_container": {
+                "image": "library/redis",
+            },
+        }
+
+        response = self.client.post(
+            reverse("maracker.create"), docker_app, format="json")
+        app1_slug = response.json()["slug"]
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # With port exposure
+        docker_app = {
+            "name": "redis",
+            "description": "Redis container",
+            "docker_container": {
+                "image": "library/redis",
+                "ports": [6539]
+            },
+        }
+
+        response = self.client.post(
+            reverse("maracker.create"), docker_app, format="json")
+        app2_slug = response.json()["slug"]
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check slug uniqueness
+        self.assertNotEqual(app1_slug, app2_slug)
 
     #
     #     def test_api_can_create_cmd_app_with_marathon_config(self):
