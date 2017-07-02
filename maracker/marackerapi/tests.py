@@ -177,16 +177,30 @@ class APIMarackerAppTestCase(TestCase):
         # Check slug uniqueness
         self.assertNotEqual(app1_slug, app2_slug)
 
-    #
-    #     def test_api_can_create_cmd_app_with_marathon_config(self):
-    #         response = self.client.post(
-    #             reverse("cmd_app.create"),
-    #             self.cmd_app_with_marathon,
-    #             format="json")
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #         cmd_app = CmdApp.objects.get(pk=response.data["id"])
-    #         self.assertTrue(cmd_app.marathoncmd_set.all())
-    #
+    def test_api_can_create_cmd_app_with_marathon_config(self):
+        cmd_app = {
+            "name":
+            "Hello World",
+            "command":
+            "echo $MESSAGE",
+            "marathon_configs": [{
+                "env_vars": {
+                    "MESSAGE": "Hello",
+                }
+            }, {
+                "cpu": 0.1,
+                "memory": 32,
+                "env_vars": {
+                    "MESSAGE": "Hola",
+                }
+            }]
+        }
+        response = self.client.post(
+            reverse("maracker.create"), cmd_app, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        cmd_app = MarackerApplication.objects.get(pk=response.data["id"])
+        self.assertTrue(cmd_app.marathonconfig_set.all())
+
     #     def test_api_can_update_cmd_app(self):
     #         app = CmdApp.objects.get(pk=1)
     #         before_count = app.marathoncmd_set.count()
