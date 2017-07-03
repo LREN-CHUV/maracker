@@ -241,3 +241,23 @@ class APIMarackerAppTestCase(TestCase):
         self.assertTrue(before_configs < after_configs)
         self.assertIsNotNone(app.docker_container)
         self.assertNotEqual(before_container_image, after_container_image)
+
+    def test_slug(self):
+        response = self.client.get(
+            reverse("maracker.details-slug", kwargs={"name": "database"}),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        app_name = response.json()["name"]
+        response = self.client.delete(
+            reverse("maracker.details-slug", kwargs={"name": app_name}),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.client.get(
+            reverse("maracker.details-slug", kwargs={"name": app_name}),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

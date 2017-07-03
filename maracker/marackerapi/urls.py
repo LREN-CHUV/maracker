@@ -1,18 +1,23 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 from .views import ApplicationCreateView, ApplicationDetailsView
+from .views import ApplicationSlugView
+from .views import DockerDetailsView, MarathonDetailsView
 
 urlpatterns = {
     url(r'^apps/?$', ApplicationCreateView.as_view(), name="maracker.create"),
     url(r'^apps/(?P<pk>[0-9]+)/?$',
         ApplicationDetailsView.as_view(),
         name="maracker.details"),
-    #     url(r'^dockerapps/?$',
-    #         DockerAppCreateView.as_view(),
-    #         name="docker_app.create"),
-    #     url(r'^dockerapps/(?P<pk>[0-9]+)/?$',
-    #         DockerAppDetailsView.as_view(),
-    #         name="docker_app.details")
+    url(r'^apps/(?P<name>[-\w]+)/?$',
+        ApplicationSlugView.as_view(),
+        name="maracker.details-slug"),
+    url(r'^container/docker/(?P<pk>[0-9]+)/?$',
+        DockerDetailsView.as_view(),
+        name="maracker.docker"),
+    url(r'^marathon-config/(?P<pk>[0-9]+)/?$',
+        MarathonDetailsView.as_view(),
+        name="maracker.marathon"),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)
