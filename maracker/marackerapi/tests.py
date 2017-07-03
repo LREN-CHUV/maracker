@@ -157,7 +157,6 @@ class APIMarackerAppTestCase(TestCase):
 
         response = self.client.post(
             reverse("maracker.create"), docker_app, format="json")
-        app1_slug = response.json()["slug"]
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # With port exposure
@@ -170,13 +169,17 @@ class APIMarackerAppTestCase(TestCase):
             },
         }
 
+        # Check validation works
         response = self.client.post(
             reverse("maracker.create"), docker_app, format="json")
-        app2_slug = response.json()["slug"]
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # Check slug uniqueness
-        self.assertNotEqual(app1_slug, app2_slug)
+        # Post application needing port exposure
+        docker_app["name"] = "redis-database"
+
+        response = self.client.post(
+            reverse("maracker.create"), docker_app, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_api_can_create_cmd_app_with_marathon_config(self):
         cmd_app = {

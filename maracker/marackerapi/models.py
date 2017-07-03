@@ -3,7 +3,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.validators import RegexValidator
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import HStoreField
-from django.utils.text import slugify
 
 appname_max_length = 50
 
@@ -28,36 +27,20 @@ class DockerContainer(models.Model):
 class MarackerApplication(models.Model):
     name = models.CharField(
         max_length=appname_max_length,
-        # unique=True,
+        unique=True,
         blank=False, )
     description = models.TextField(
         blank=True, default="no description available")
     command = models.TextField(blank=True, default="")
     vcs_url = models.URLField(blank=True, max_length=2000)
-    slug = models.SlugField(
-        max_length=appname_max_length + 12, unique=True, blank=True)
     docker_container = models.OneToOneField(
         DockerContainer,
         on_delete=models.CASCADE,
         null=True,
         blank=True, )
 
-    def _get_unique_slug(self):
-        slug = slugify(self.name)
-        unique_slug = slug
-        num = 1
-        while MarackerApplication.objects.filter(slug=unique_slug).exists():
-            unique_slug = '{}-{}'.format(slug, num)
-            num += 1
-        return unique_slug
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = self._get_unique_slug()
-        super().save()
-
     def __str__(self):
-        return self.slug
+        return self.name
 
 
 class MarathonConfig(models.Model):

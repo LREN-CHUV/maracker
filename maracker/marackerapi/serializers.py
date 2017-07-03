@@ -21,7 +21,7 @@ class MarackerApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MarackerApplication
-        fields = ('id', 'name', 'description', 'command', 'vcs_url', 'slug',
+        fields = ('id', 'name', 'description', 'command', 'vcs_url',
                   'docker_container', 'marathon_configs')
 
     def create(self, validated_data):

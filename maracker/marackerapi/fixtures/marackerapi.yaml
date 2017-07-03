@@ -4,7 +4,7 @@
 -   model: marackerapi.marackerapplication
     pk: 1
     fields: {name: database, description: no description available, command: '', vcs_url: '',
-        slug: database, docker_container: 1}
+        docker_container: 1}
 -   model: marackerapi.marathonconfig
     pk: 1
     fields: {cpu: '0.1', memory: 32, args: '', env_vars: '{"var1": "test", "var2":
