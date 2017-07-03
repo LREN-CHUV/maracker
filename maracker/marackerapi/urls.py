@@ -9,7 +9,7 @@ urlpatterns = {
     url(r'^apps/(?P<pk>[0-9]+)/?$',
         ApplicationDetailsView.as_view(),
         name="maracker.details"),
-    url(r'^apps/(?P<name>[-\w]+)/?$',
+    url(r'^apps/(?P<name>[-A-Za-z]+)/?$',
         ApplicationSlugView.as_view(),
         name="maracker.details-slug"),
     url(r'^container/docker/(?P<pk>[0-9]+)/?$',
