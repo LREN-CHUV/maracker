@@ -1,12 +1,11 @@
 from django.test import TestCase
-from .services import get_docker_metadata
-# from .services import MarathonService
+from .services import get_docker_metadata, deploy_on_marathon
+from .services import delete_from_marathon
 from .models import MarackerApplication, DockerContainer, MarathonConfig
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.core.urlresolvers import reverse
-
-# import os
+import os
 
 
 class MicrobadgerTestCase(TestCase):
@@ -29,37 +28,36 @@ class MicrobadgerTestCase(TestCase):
         self.assertIsNone(microbadger_data)
 
 
-# class MarathonServiceTestCase(TestCase):
-#     fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
-#
-#     def setUp(self):
-#         if os.getenv('TRAVIS', False):
-#             self.skipTest('skipped test as a Marathon instance is needed')
-#
-#         self.cmd_app = CmdApp.objects.get(pk=1)
-#         self.docker_app = DockerApp.objects.get(pk=2)
-#
-#     def test_marathon_service_cmd_create_and_delete(self):
-#         response = MarathonService.deploy_cmd_app(
-#             self.cmd_app, self.cmd_app.marathoncmd_set.first())
-#
-#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-#
-#         response = MarathonService.delete_app(
-#             self.cmd_app, self.cmd_app.marathoncmd_set.first())
-#
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#
-#     def test_marathon_service_docker_create_and_delete(self):
-#         response = MarathonService.deploy_docker_app(
-#             self.docker_app, self.docker_app.marathondocker_set.first())
-#
-#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-#
-#         response = MarathonService.delete_app(
-#             self.docker_app, self.docker_app.marathondocker_set.first())
-#
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+class MarathonServiceTestCase(TestCase):
+    fixtures = ["marackerapi/fixtures/marackerapi.yaml"]
+
+    def setUp(self):
+        if os.getenv('TRAVIS', False):
+            self.skipTest('skipped test as a Marathon instance is needed')
+
+    def test_marathon_service_can_create_and_delete_docker_app(self):
+        app = MarackerApplication.objects.get(pk=1)
+        marathon_conf = app.marathonconfig_set.first()
+
+        response = deploy_on_marathon(app, marathon_conf)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = delete_from_marathon(app, marathon_conf)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_marathon_service_handles_non_existent_app(self):
+        app = MarackerApplication(name="non-existent")
+        marathon_conf = MarathonConfig(id=12)
+
+        response = deploy_on_marathon(app, marathon_conf)
+
+        self.assertIsNone(response)
+
+        response = delete_from_marathon(app, marathon_conf)
+
+        self.assertIsNone(response)
 
 
 class MarackerApplicationTestCase(TestCase):

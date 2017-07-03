@@ -1,6 +1,7 @@
 import requests
 import json
 from django.conf import settings
+from rest_framework import status
 
 microbadger_url = "https://api.microbadger.com"
 microbadger_details = microbadger_url + "/v1/images/{}/{}"
@@ -25,77 +26,75 @@ class MicrobadgerMetadata:
         self.memory = labels.get("org.label-schema.memory-hint", None)
 
 
-class MarathonService:
-    api_url = settings.MARATHON["URL"]
-    deploy_url = api_url + "/v2/apps"
-    delete_url = deploy_url + "/{}"
+marathon_url = settings.MARATHON["URL"]
+marathon_deploy = marathon_url + "/v2/apps"
+marathon_delete = marathon_deploy + "/{}"
 
-    @staticmethod
-    def deploy_cmd_app(app, marathon_config, instances=1):
-        marathon_data = {
-            "id": MarathonService.marathon_name(app),
-            "cmd": app.command,
-            "cpus": float(marathon_config.cpu),
-            "mem": marathon_config.memory,
-            "instancer": instances,
-        }
+
+def deploy_on_marathon(app, marathon_config, instances=1):
+    marathon_data = {
+        "id": get_marathon_name(app, marathon_config),
+        # "cmd": app.command,
+        "cpus": float(marathon_config.cpu),
+        "mem": marathon_config.memory,
+        "instances": instances,
+    }
+
+    if not app.docker_container:
+        if app.command:
+            marathon_data["cmd"] = app.command
         if marathon_config.args:
-            marathon_data["cmd"] += " {}".format(marathon_config.args)
+            marathon_data["cmd"] = " {}".format(marathon_config.args)
 
-        if marathon_config.env_vars:
-            marathon_data["env"] = {
-                k: v
-                for k, v in marathon_config.env_vars.items()
-            }
-
-        response = requests.post(
-            MarathonService.deploy_url, json=marathon_data)
-
-        return response
-
-    @staticmethod
-    def deploy_docker_app(app, marathon_config, instances=1):
-        marathon_data = {
-            "id": MarathonService.marathon_name(app),
-            "cpus": float(marathon_config.cpu),
-            "mem": marathon_config.memory,
-            "instances": 1,
-            "container": {
-                "type": "DOCKER",
-                "docker": {
-                    "image": "{app.namespace}/{app.image}".format(app=app),
-                    "network": "BRIDGE",
-                    "forcePullImage": False,
-                },
-            }
+    elif app.docker_container is not None:
+        marathon_data["container"] = {
+            "type": "DOCKER",
+            "docker": {
+                "image": "{}".format(app.docker_container.image),
+                "network": "BRIDGE",
+                "forcePullImage": False,
+            },
         }
-        if marathon_config.ports:
+        if app.command:
+            marathon_data["cmd"] = app.command
+
+            if marathon_config.args:
+                marathon_data["cmd"] += " {}".format(marathon_config.args)
+
+        elif marathon_config.args:
+            marathon_data["args"] = marathon_config.args
+
+        if app.docker_container.ports:
             marathon_data["container"]["docker"]["portMappings"] = [{
                 "containerPort":
                 p,
                 "hostPort":
                 0
-            } for p in marathon_config.ports]
+            } for p in app.docker_container.ports]
 
-        if marathon_config.env_vars:
-            marathon_data["env"] = {
-                k: v
-                for k, v in marathon_config.env_vars.items()
-            }
+    if marathon_config.env_vars:
+        marathon_data["env"] = {
+            k: v
+            for k, v in marathon_config.env_vars.items()
+        }
 
-        response = requests.post(
-            MarathonService.deploy_url, json=marathon_data)
+    response = requests.post(marathon_deploy, json=marathon_data)
 
-        return response
+    if response.status_code != status.HTTP_201_CREATED:
+        return None
 
-    @staticmethod
-    def marathon_name(app):
-        return "{app.name}.{app.id}".format(app=app)
+    return response
 
-    @staticmethod
-    def delete_app(app, marathon_config):
-        response = requests.delete(
-            MarathonService.delete_url.format(
-                MarathonService.marathon_name(app)))
 
-        return response
+def delete_from_marathon(app, marathon_config):
+    response = requests.delete(
+        marathon_delete.format(get_marathon_name(app, marathon_config)))
+
+    if response.status_code != status.HTTP_200_OK:
+        return None
+
+    return response
+
+
+def get_marathon_name(app, marathon_conf):
+    return "{}.{}".format(app.name, marathon_conf.id)

@@ -128,4 +128,4 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer', ),
 }
 
-MARATHON = {'URL': os.environ.get('MARATHON_URL', 'http://192.168.33.10:8080')}
+MARATHON = {'URL': os.environ.get('MARATHON_URL', 'http://127.0.0.1:8080')}
