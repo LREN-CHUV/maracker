@@ -3,7 +3,7 @@ from .serializers import MarackerApplicationSerializer
 from .models import MarackerApplication
 
 
-class MarackerApplicationCreateView(generics.ListCreateAPIView):
+class ApplicationCreateView(generics.ListCreateAPIView):
     queryset = MarackerApplication.objects.all()
     serializer_class = MarackerApplicationSerializer
 
@@ -11,6 +11,6 @@ class MarackerApplicationCreateView(generics.ListCreateAPIView):
         serializer.save()
 
 
-class MarackerApplicationDetailsView(generics.RetrieveUpdateDestroyAPIView):
+class ApplicationDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MarackerApplication.objects.all()
     serializer_class = MarackerApplicationSerializer

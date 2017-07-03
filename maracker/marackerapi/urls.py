@@ -1,14 +1,11 @@
 from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import MarackerApplicationCreateView
-from .views import MarackerApplicationDetailsView
+from .views import ApplicationCreateView, ApplicationDetailsView
 
 urlpatterns = {
-    url(r'^apps/?$',
-        MarackerApplicationCreateView.as_view(),
-        name="maracker.create"),
+    url(r'^apps/?$', ApplicationCreateView.as_view(), name="maracker.create"),
     url(r'^apps/(?P<pk>[0-9]+)/?$',
-        MarackerApplicationDetailsView.as_view(),
+        ApplicationDetailsView.as_view(),
         name="maracker.details"),
     #     url(r'^dockerapps/?$',
     #         DockerAppCreateView.as_view(),
