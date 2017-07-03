@@ -2,29 +2,27 @@ import requests
 import json
 from django.conf import settings
 
+microbadger_url = "https://api.microbadger.com"
+microbadger_details = microbadger_url + "/v1/images/{}/{}"
 
-class MicrobadgerService:
-    api_url = "https://api.microbadger.com"
-    details_url = api_url + "/v1/images/{}/{}"
 
-    @staticmethod
-    def get_docker_metadata(namespace, name):
-        url = MicrobadgerService.details_url.format(namespace, name)
-        response = requests.get(url)
-        try:
-            return MicrobadgerMetadata(response.json())
-        except json.decoder.JSONDecodeError:
-            return None
+def get_docker_metadata(namespace, name):
+    url = microbadger_details.format(namespace, name)
+    response = requests.get(url)
+    try:
+        return MicrobadgerMetadata(response.json())
+    except json.decoder.JSONDecodeError:
+        return None
 
 
 class MicrobadgerMetadata:
     def __init__(self, docker_meta):
-        labels = docker_meta["Labels"]
-        self.image_name = docker_meta["ImageName"]
-        self.image_url = docker_meta["ImageURL"]
-        self.author = docker_meta["Author"]
-        self.description = labels["org.label-schema.description"]
-        self.memory = labels["org.label-schema.memory-hint"]
+        labels = docker_meta.get("Labels", {})
+        self.image_name = docker_meta.get("ImageName", None)
+        self.image_url = docker_meta.get("ImageURL", None)
+        self.author = docker_meta.get("Author", None)
+        self.description = labels.get("org.label-schema.description", None)
+        self.memory = labels.get("org.label-schema.memory-hint", None)
 
 
 class MarathonService:

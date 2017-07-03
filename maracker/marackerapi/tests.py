@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .services import MicrobadgerService
+from .services import get_docker_metadata
 # from .services import MarathonService
 from .models import MarackerApplication, DockerContainer, MarathonConfig
 from rest_framework.test import APIClient
@@ -15,19 +15,17 @@ class MicrobadgerTestCase(TestCase):
 
     def test_service_can_fetch_data_and_create_model(self):
         namespace, image_name = "hbpmip", "portal-backend"
-        microbadger_data = MicrobadgerService.get_docker_metadata(
-            namespace, image_name)
+        microbadger_data = get_docker_metadata(namespace, image_name)
         self.assertIsNotNone(microbadger_data)
         self.assertEqual(microbadger_data.image_name,
                          "/".join([namespace, image_name]))
 
     def test_service_handle_non_existent_image(self):
-        microbadger_data = MicrobadgerService.get_docker_metadata(
-            'toto', 'portal-backend')
+        microbadger_data = get_docker_metadata('toto', 'portal-backend')
         self.assertIsNone(microbadger_data)
 
     def test_service_handle_unexpected_values(self):
-        microbadger_data = MicrobadgerService.get_docker_metadata(None, None)
+        microbadger_data = get_docker_metadata(None, None)
         self.assertIsNone(microbadger_data)
 
 
