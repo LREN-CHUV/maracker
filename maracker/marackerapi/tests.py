@@ -208,11 +208,15 @@ class APIMarackerAppTestCase(TestCase):
     def test_api_can_update_app(self):
         # Fetch the application to update
         app = MarackerApplication.objects.get(pk=1)
+
         before_configs = app.marathonconfig_set.count()
         before_container_image = app.docker_container.image
 
         response = self.client.get(
             reverse("maracker.details", kwargs={'pk': app.id}), format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         app_data = response.data
 
         # Make some changes
