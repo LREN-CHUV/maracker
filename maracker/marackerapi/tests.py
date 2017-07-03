@@ -137,7 +137,7 @@ class APIMarackerAppTestCase(TestCase):
 
     def test_api_can_create_cmd_app(self):
         cmd_app = {
-            "name": "My cmd app",
+            "name": "my-cmd-app",
             "description": "be careful it's dangerous",
             "command": "env"
         }
@@ -184,7 +184,7 @@ class APIMarackerAppTestCase(TestCase):
     def test_api_can_create_cmd_app_with_marathon_config(self):
         cmd_app = {
             "name":
-            "Hello World",
+            "hello-world",
             "command":
             "echo $MESSAGE",
             "marathon_configs": [{

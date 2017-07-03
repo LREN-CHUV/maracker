@@ -25,7 +25,7 @@ class DockerContainer(models.Model):
 
 
 class MarackerApplication(models.Model):
-    name = models.CharField(
+    name = models.SlugField(
         max_length=appname_max_length,
         unique=True,
         blank=False, )
