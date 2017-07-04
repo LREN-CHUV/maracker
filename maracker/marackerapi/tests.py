@@ -34,31 +34,19 @@ class MarathonServiceTestCase(TestCase):
     def setUp(self):
         if os.getenv('TRAVIS', False):
             self.skipTest('skipped test as a Marathon instance is needed')
-        self.service = MarathonService(settings)
+        self.service = MarathonService(settings.MARATHON["URL"])
 
     def test_marathon_service_can_create_and_delete_docker_app(self):
         app = MarackerApplication.objects.get(pk=1)
         marathon_conf = app.marathonconfig_set.first()
 
-        response = self.service.deploy_on_marathon(app, marathon_conf)
+        response = self.service.deploy_on_marathon(marathon_conf)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        response = self.service.delete_from_marathon(app, marathon_conf)
+        response = self.service.delete_from_marathon(marathon_conf)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_marathon_service_handles_non_existent_app(self):
-        app = MarackerApplication(name="non-existent")
-        marathon_conf = MarathonConfig(id=12)
-
-        response = self.service.deploy_on_marathon(app, marathon_conf)
-
-        self.assertIsNone(response)
-
-        response = self.service.delete_from_marathon(app, marathon_conf)
-
-        self.assertIsNone(response)
 
 
 class MarackerApplicationTestCase(TestCase):

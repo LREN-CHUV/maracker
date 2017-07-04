@@ -28,19 +28,22 @@ class MicrobadgerMetadata:
 
 
 class MarathonService:
-    def __init__(self, settings):
-        self.marathon_url = settings.MARATHON["URL"]
-        self.marathon_deploy = self.marathon_url + "/v2/apps"
-        self.marathon_delete = self.marathon_deploy + "/{}"
+    def __init__(self, url):
+        self.url = url
+        self.deploy_url = self.url + "/v2/apps"
+        self.delete_url = self.deploy_url + "/{}"
 
-    def deploy_on_marathon(self, app, marathon_config, instances=1):
+    def deploy_on_marathon(self, marathon_config, instances=1):
+
         marathon_data = {
-            "id": self.get_marathon_name(app, marathon_config),
+            "id": self.get_marathon_name(marathon_config),
             # "cmd": app.command,
             "cpus": float(marathon_config.cpu),
             "mem": marathon_config.memory,
             "instances": instances,
         }
+
+        app = marathon_config.maracker_app
 
         if not app.docker_container:
             if app.command:
@@ -77,22 +80,22 @@ class MarathonService:
         if marathon_config.env_vars:
             marathon_data["env"] = copy(marathon_config.env_vars)
 
-        response = requests.post(self.marathon_deploy, json=marathon_data)
+        response = requests.post(self.deploy_url, json=marathon_data)
 
         if response.status_code != status.HTTP_201_CREATED:
-            return None
+            raise Exception("Application could not be deployed")
 
         return response
 
-    def delete_from_marathon(self, app, marathon_config):
+    def delete_from_marathon(self, marathon_config):
         response = requests.delete(
-            self.marathon_delete.format(
-                self.get_marathon_name(app, marathon_config)))
+            self.delete_url.format(self.get_marathon_name(marathon_config)))
 
         if response.status_code != status.HTTP_200_OK:
-            return None
+            raise Exception("Application could not be deployed")
 
         return response
 
-    def get_marathon_name(self, app, marathon_conf):
-        return "{}.{}".format(app.name, marathon_conf.id)
+    def get_marathon_name(self, marathon_conf):
+        return "{}.{}".format(marathon_conf.maracker_app.name,
+                              marathon_conf.id)
