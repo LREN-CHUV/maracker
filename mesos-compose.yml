@@ -31,12 +31,25 @@ services:
 
   marathon:
     image: mesosphere/marathon:v1.4.5
-    ports:
-      - 8080:8080
     environment:
       - MARATHON_ZK=zk://zoo1:2181/marathon
       - MARATHON_MASTER=zk://zoo1:2181/mesos
     command: "--event_subscriber http_callback"
+    ports:
+      - 8080:8080
+    labels:
+       - "traefik.backend=marathon"
+       - "traefik.frontend.rule=Host:ui.marathon.localhost"
+       - "traefik.port=8080"
+
+  # marathon:
+  #   image: mesosphere/marathon:v1.4.5
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     - MARATHON_ZK=zk://zoo1:2181/marathon
+  #     - MARATHON_MASTER=zk://zoo1:2181/mesos
+  #   command: "--event_subscriber http_callback"
 
   chronos:
     image: mesosphere/chronos:v3.0.2
@@ -47,12 +60,21 @@ services:
       - PORT0=4400
       - PORT1=8081
     command: --zk_hosts zoo1:2181 --master zk://zoo1:2181/mesos
+    labels:
+       - "traefik.backend=chronos"
+       - "traefik.frontend.rule=Host:ui.chronos.localhost"
+       - "traefik.port=4400"
 
-  traefik:
-    image: containous/traefik
-    command: -c /dev/null --web --logLevel=DEBUG --marathon --marathon.domain=marathon.localhost --marathon.endpoint=http://127.0.0.1:8080 --marathon.watch
-    ports:
-      - 8000:80
-      - 10010:8080
+  proxy:
+    image: traefik:1.3-alpine
+    hostname: proxy
+    domainname: marathon.localhost
     volumes:
+      - ./traefik.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8888:8888"
+      - "80:80"
+      - "443:443"
+    command: -c /etc/traefik/traefik.toml --marathon.endpoint=http://marathon:8080
+    # command: -c /etc/traefik/traefik.toml --web --logLevel=DEBUG --marathon --marathon.domain=marathon.localhost --marathon.endpoint=http://marathon:8080 --marathon.watch

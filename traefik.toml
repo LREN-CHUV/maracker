@@ -1,0 +1,19 @@
+debug = true
+logLevel = "DEBUG"
+defaultEntryPoints = ["http", "https"]
+
+traefikLogsFile = "/proc/self/fd/1"
+accessLogsFile = "/proc/self/fd/1"
+
+[web]
+address = ":8888"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+watch = true
+
+[marathon]
+endpoint = "http://marathon:8080"
+watch = true
+# domain = "marathon.localhost"
+# exposedByDefault = true
