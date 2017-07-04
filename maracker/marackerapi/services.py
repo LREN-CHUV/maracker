@@ -1,15 +1,16 @@
 import requests
 import json
-from django.conf import settings
 from rest_framework import status
-
-microbadger_url = "https://api.microbadger.com"
-microbadger_details = microbadger_url + "/v1/images/{}/{}"
+from copy import copy
 
 
 def get_docker_metadata(namespace, name):
-    url = microbadger_details.format(namespace, name)
+    api_url = "https://api.microbadger.com"
+    details_url = api_url + "/v1/images/{}/{}"
+
+    url = details_url.format(namespace, name)
     response = requests.get(url)
+
     try:
         return MicrobadgerMetadata(response.json())
     except json.decoder.JSONDecodeError:
@@ -26,75 +27,72 @@ class MicrobadgerMetadata:
         self.memory = labels.get("org.label-schema.memory-hint", None)
 
 
-marathon_url = settings.MARATHON["URL"]
-marathon_deploy = marathon_url + "/v2/apps"
-marathon_delete = marathon_deploy + "/{}"
+class MarathonService:
+    def __init__(self, settings):
+        self.marathon_url = settings.MARATHON["URL"]
+        self.marathon_deploy = self.marathon_url + "/v2/apps"
+        self.marathon_delete = self.marathon_deploy + "/{}"
 
-
-def deploy_on_marathon(app, marathon_config, instances=1):
-    marathon_data = {
-        "id": get_marathon_name(app, marathon_config),
-        # "cmd": app.command,
-        "cpus": float(marathon_config.cpu),
-        "mem": marathon_config.memory,
-        "instances": instances,
-    }
-
-    if not app.docker_container:
-        if app.command:
-            marathon_data["cmd"] = app.command
-        if marathon_config.args:
-            marathon_data["cmd"] = " {}".format(marathon_config.args)
-
-    elif app.docker_container is not None:
-        marathon_data["container"] = {
-            "type": "DOCKER",
-            "docker": {
-                "image": "{}".format(app.docker_container.image),
-                "network": "BRIDGE",
-                "forcePullImage": False,
-            },
+    def deploy_on_marathon(self, app, marathon_config, instances=1):
+        marathon_data = {
+            "id": self.get_marathon_name(app, marathon_config),
+            # "cmd": app.command,
+            "cpus": float(marathon_config.cpu),
+            "mem": marathon_config.memory,
+            "instances": instances,
         }
-        if app.command:
-            marathon_data["cmd"] = app.command
 
+        if not app.docker_container:
+            if app.command:
+                marathon_data["cmd"] = app.command
             if marathon_config.args:
-                marathon_data["cmd"] += " {}".format(marathon_config.args)
+                marathon_data["cmd"] = " {}".format(marathon_config.args)
 
-        elif marathon_config.args:
-            marathon_data["args"] = marathon_config.args
+        elif app.docker_container is not None:
+            marathon_data["container"] = {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "{}".format(app.docker_container.image),
+                    "network": "BRIDGE",
+                    "forcePullImage": False,
+                },
+            }
+            if app.command:
+                marathon_data["cmd"] = app.command
 
-        if app.docker_container.ports:
-            marathon_data["container"]["docker"]["portMappings"] = [{
-                "containerPort":
-                p,
-                "hostPort":
-                0
-            } for p in app.docker_container.ports]
+                if marathon_config.args:
+                    marathon_data["cmd"] += " {}".format(marathon_config.args)
 
-    if marathon_config.env_vars:
-        marathon_data["env"] = {
-            k: v
-            for k, v in marathon_config.env_vars.items()
-        }
+            elif marathon_config.args:
+                marathon_data["args"] = marathon_config.args
 
-    response = requests.post(marathon_deploy, json=marathon_data)
+            if app.docker_container.ports:
+                marathon_data["container"]["docker"]["portMappings"] = [{
+                    "containerPort":
+                    p,
+                    "hostPort":
+                    0
+                } for p in app.docker_container.ports]
 
-    if response.status_code != status.HTTP_201_CREATED:
-        return None
+        if marathon_config.env_vars:
+            marathon_data["env"] = copy(marathon_config.env_vars)
 
-    return response
+        response = requests.post(self.marathon_deploy, json=marathon_data)
 
+        if response.status_code != status.HTTP_201_CREATED:
+            return None
 
-def delete_from_marathon(app, marathon_config):
-    response = requests.delete(
-        marathon_delete.format(get_marathon_name(app, marathon_config)))
+        return response
 
-    if response.status_code != status.HTTP_200_OK:
-        return None
+    def delete_from_marathon(self, app, marathon_config):
+        response = requests.delete(
+            self.marathon_delete.format(
+                self.get_marathon_name(app, marathon_config)))
 
-    return response
+        if response.status_code != status.HTTP_200_OK:
+            return None
 
+        return response
 
-def get_marathon_name(app, marathon_conf):
-    return "{}.{}".format(app.name, marathon_conf.id)
+    def get_marathon_name(self, app, marathon_conf):
+        return "{}.{}".format(app.name, marathon_conf.id)

@@ -1,10 +1,10 @@
 from django.test import TestCase
-from .services import get_docker_metadata, deploy_on_marathon
-from .services import delete_from_marathon
+from .services import get_docker_metadata, MarathonService
 from .models import MarackerApplication, DockerContainer, MarathonConfig
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.core.urlresolvers import reverse
+from django.conf import settings
 import os
 
 
@@ -34,16 +34,17 @@ class MarathonServiceTestCase(TestCase):
     def setUp(self):
         if os.getenv('TRAVIS', False):
             self.skipTest('skipped test as a Marathon instance is needed')
+        self.service = MarathonService(settings)
 
     def test_marathon_service_can_create_and_delete_docker_app(self):
         app = MarackerApplication.objects.get(pk=1)
         marathon_conf = app.marathonconfig_set.first()
 
-        response = deploy_on_marathon(app, marathon_conf)
+        response = self.service.deploy_on_marathon(app, marathon_conf)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        response = delete_from_marathon(app, marathon_conf)
+        response = self.service.delete_from_marathon(app, marathon_conf)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -51,11 +52,11 @@ class MarathonServiceTestCase(TestCase):
         app = MarackerApplication(name="non-existent")
         marathon_conf = MarathonConfig(id=12)
 
-        response = deploy_on_marathon(app, marathon_conf)
+        response = self.service.deploy_on_marathon(app, marathon_conf)
 
         self.assertIsNone(response)
 
-        response = delete_from_marathon(app, marathon_conf)
+        response = self.service.delete_from_marathon(app, marathon_conf)
 
         self.assertIsNone(response)
 
