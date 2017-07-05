@@ -76,6 +76,13 @@ class MarathonService:
                     "hostPort":
                     0
                 } for p in app.docker_container.ports]
+                marathon_data["labels"] = {
+                    "traefik.frontend.rule":
+                    "Host:{}{}.marathon.localhost".format(
+                        app.name, marathon_config.id),
+                    "traefik.backend":
+                    "{}{}".format(app.name, marathon_config.id)
+                }
 
         if marathon_config.env_vars:
             marathon_data["env"] = copy(marathon_config.env_vars)
@@ -83,7 +90,7 @@ class MarathonService:
         response = requests.post(self.deploy_url, json=marathon_data)
 
         if response.status_code != status.HTTP_201_CREATED:
-            raise Exception("Application could not be deployed")
+            raise Exception(response.json()["message"])
 
         return response
 
@@ -92,7 +99,7 @@ class MarathonService:
             self.delete_url.format(self.get_marathon_name(marathon_config)))
 
         if response.status_code != status.HTTP_200_OK:
-            raise Exception("Application could not be deployed")
+            raise Exception(response.json()["message"])
 
         return response
 

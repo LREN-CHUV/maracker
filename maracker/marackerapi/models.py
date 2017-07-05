@@ -55,7 +55,7 @@ class MarathonConfig(models.Model):
                     ],  # 32 due to Marathon's minimum constraint
         default=32)
     args = models.TextField(blank=True)
-    env_vars = HStoreField(default=dict())
+    env_vars = HStoreField(default=dict(), blank=True)
     maracker_app = models.ForeignKey(
         MarackerApplication, on_delete=models.CASCADE)
 
