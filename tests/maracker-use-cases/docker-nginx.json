@@ -1,0 +1,13 @@
+{
+  "name": "nginx-test",
+  "description": "simple nginx container",
+  "docker_container": {
+    "type": "docker",
+    "image": "nginx",
+    "ports": [80]
+  },
+  "marathon_configs": [{
+    "cpu": 1,
+    "memory": 64
+  }]
+}

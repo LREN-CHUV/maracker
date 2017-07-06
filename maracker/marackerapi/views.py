@@ -7,7 +7,7 @@ from .models import MarackerApplication, DockerContainer, MarathonConfig
 from .services import MarathonService
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 
 
 class ApplicationCreateView(generics.ListCreateAPIView):
@@ -21,6 +21,16 @@ class ApplicationCreateView(generics.ListCreateAPIView):
 class ApplicationDetailsView(generics.RetrieveUpdateDestroyAPIView):
     queryset = MarackerApplication.objects.all()
     serializer_class = MarackerApplicationSerializer
+
+    def perform_destroy(self, instance):
+        if instance.docker_container:
+            instance.docker_container.delete()
+        if instance.marathonconfig_set:
+            instance.marathonconfig_set.all().delete()
+
+        instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ApplicationSlugView(generics.RetrieveUpdateDestroyAPIView):
@@ -39,7 +49,6 @@ class MarathonDetailsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MarathonConfigSerializer
 
 
-@csrf_exempt
 @api_view(['POST'])
 def deploy(request, config_id):
     config = get_object_or_404(MarathonConfig, pk=config_id)

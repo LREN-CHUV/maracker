@@ -21,7 +21,7 @@ class DockerContainer(models.Model):
         blank=True)
 
     def __str__(self):
-        return "{self.image}".format(self=self)
+        return f"{self.image} (id:{self.id})"
 
 
 class MarackerApplication(models.Model):
@@ -35,7 +35,7 @@ class MarackerApplication(models.Model):
     vcs_url = models.URLField(blank=True, max_length=2000)
     docker_container = models.OneToOneField(
         DockerContainer,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True, )
 
