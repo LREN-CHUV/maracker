@@ -40,13 +40,13 @@ class MarathonServiceTestCase(TestCase):
         app = MarackerApplication.objects.get(pk=1)
         marathon_conf = app.marathonconfig_set.first()
 
-        response = self.service.deploy_on_marathon(marathon_conf)
+        deployed_app = self.service.deploy(marathon_conf)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(deployed_app)
 
-        response = self.service.delete_from_marathon(marathon_conf)
+        deployment = self.service.delete(marathon_conf)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(deployment)
 
 
 class MarackerApplicationTestCase(TestCase):

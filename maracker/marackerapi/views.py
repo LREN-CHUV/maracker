@@ -6,6 +6,7 @@ from .serializers import DockerContainerSerializer, MarathonConfigSerializer
 from .models import MarackerApplication, DockerContainer, MarathonConfig
 from .services import MarathonService
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -41,8 +42,8 @@ class MarathonDetailsView(generics.RetrieveUpdateDestroyAPIView):
 @csrf_exempt
 @api_view(['POST'])
 def deploy(request, config_id):
-    config = MarathonConfig.objects.get_object_or_404(pk=config_id)
+    config = get_object_or_404(MarathonConfig, pk=config_id)
     service = MarathonService(settings.MARATHON["URL"])
-    service.deploy_on_marathon(config)
+    service.deploy(config)
     serializer = MarathonConfigSerializer(config)
     return Response(serializer.data, status.HTTP_200_OK)
