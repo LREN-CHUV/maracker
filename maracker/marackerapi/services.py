@@ -49,13 +49,13 @@ class MarathonService:
             if app.command:
                 marathon_data["cmd"] = app.command
             if marathon_config.args:
-                marathon_data["cmd"] = " {}".format(marathon_config.args)
+                marathon_data["cmd"] = f" {marathon_config.args}"
 
         elif app.docker_container is not None:
             marathon_data["container"] = {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "{}".format(app.docker_container.image),
+                    "image": f"{app.docker_container.image}",
                     "network": "BRIDGE",
                     "forcePullImage": False,
                 },
@@ -64,7 +64,7 @@ class MarathonService:
                 marathon_data["cmd"] = app.command
 
                 if marathon_config.args:
-                    marathon_data["cmd"] += " {}".format(marathon_config.args)
+                    marathon_data["cmd"] += f" {marathon_config.args}"
 
             elif marathon_config.args:
                 marathon_data["args"] = marathon_config.args
@@ -78,10 +78,9 @@ class MarathonService:
                 } for p in app.docker_container.ports]
                 marathon_data["labels"] = {
                     "traefik.frontend.rule":
-                    "Host:{}{}.marathon.localhost".format(
-                        app.name, marathon_config.id),
+                    f"Host:{app.name}{marathon_config.id}.marathon.localhost",
                     "traefik.backend":
-                    "{}{}".format(app.name, marathon_config.id)
+                    f"{app.name}{marathon_config.id}"
                 }
 
         if marathon_config.env_vars:
@@ -104,5 +103,4 @@ class MarathonService:
         return response
 
     def get_marathon_name(self, marathon_conf):
-        return "{}.{}".format(marathon_conf.maracker_app.name,
-                              marathon_conf.id)
+        return f"{marathon_conf.maracker_app.name}.{marathon_conf.id}"

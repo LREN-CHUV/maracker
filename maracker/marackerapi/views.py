@@ -41,16 +41,8 @@ class MarathonDetailsView(generics.RetrieveUpdateDestroyAPIView):
 @csrf_exempt
 @api_view(['POST'])
 def deploy(request, config_id):
-    try:
-        config = MarathonConfig.objects.get(pk=config_id)
-        service = MarathonService(settings.MARATHON["URL"])
-        service.deploy_on_marathon(config)
-        serializer = MarathonConfigSerializer(config)
-        return Response(serializer.data, status.HTTP_200_OK)
-    except MarathonConfig.DoesNotExist:
-        return Response({
-            "error": "This Marathon configuration doesn't exist"
-        }, status.HTTP_404_NOT_FOUND)
-
-    except Exception as e:
-        return Response({"error": str(e)}, status.HTTP_400_BAD_REQUEST)
+    config = MarathonConfig.objects.get_object_or_404(pk=config_id)
+    service = MarathonService(settings.MARATHON["URL"])
+    service.deploy_on_marathon(config)
+    serializer = MarathonConfigSerializer(config)
+    return Response(serializer.data, status.HTTP_200_OK)
