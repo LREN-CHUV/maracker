@@ -101,6 +101,8 @@ htmlhelp_basename = 'Marackerdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
+latex_engine = 'xelatex'
+
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
@@ -117,14 +119,24 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+    'fontpkg': r'\setmainfont{Linux Libertine O}'
+               r'\setsansfont{Linux Biolinum O}'
+               r'\setmonofont[Scale=0.9]{Inconsolata}'
+               r'\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text,'
+               r'Numbers=OldStyle,'
+               r'Ligatures={Common,Rare,Discretionary,Historic}}',
+    'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
 }
+
+latex_show_urls = 'footnote'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Maracker.tex', 'Maracker Documentation', 'Julien M\'Poy',
-     'report'),
+    (master_doc, 'Maracker.tex',
+        'Maracker: rapport de projet',
+     'Julien M\'Poy, supervisé par Aïcha Rizzotti', 'report'),
 ]
 
 # -- Options for manual page output ---------------------------------------
@@ -142,3 +154,7 @@ texinfo_documents = [
     (master_doc, 'Maracker', 'Maracker Documentation', author, 'Maracker',
      'One line description of project.', 'Miscellaneous'),
 ]
+
+# Figures
+
+numfig = True
