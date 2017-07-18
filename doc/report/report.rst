@@ -1,24 +1,20 @@
-.. MIP App Framework documentation master file, created by
-   sphinx-quickstart on Tue Feb  7 00:24:36 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to Maracker's documentation!
-=============================================
+=============================
+ Maracker: rapport de projet
+=============================
 
 .. toctree::
    :maxdepth: 2
    :numbered:
    :caption: Contents:
 
-
 Introduction
 ============
 
 Ce document décrit la réalisation d'une API facilitant le déploiement
 d'applications dans une infrastructure de type SaaS (Software as a Service)
-dans le cadre d'un travail de bachelor en collaboration avec le CHUV et
-la HE-ARC.
+dans le cadre d'un travail de bachelor en collaboration avec
+le Centre hospitalier universitaire vaudois (*CHUV*) et la Haute école Arc
+ingénierie (HE-ARC).
 
 Contexte
 ~~~~~~~~
@@ -104,7 +100,7 @@ par les développeurs d'applications web: l'architecture orientée service
 Cette nouvelle architecture propose donner un point d'entrée pour les humains
 (des interfaces graphiques) et un point d'entrée pour les machines fournissant
 des données sous différents formats (:code:`JSON`, :code:`XML`, ...).
-Afin d'adopter cette architecture les applications sont souvent découpée en
+Afin d'adopter cette architecture les applications sont souvent découpées en
 deux parties; une partie fournissant un front-end et l'autre étant le service
 (schéma «:ref:`soa-fig` »).
 
@@ -118,22 +114,22 @@ deux parties; une partie fournissant un front-end et l'autre étant le service
    Architecture orientée services
 
 Le principal inconvénient de cette architecture est que cela demande plus de
-travail de la part des administrateurs système. Il y a deux
+travail de la part des administrateurs systèmes. Il y a deux
 applications à maintenir mais aussi à exposer aux utilisateurs
 et à sécuriser. Comme cela demande de plus en plus d'opération, il devient
-nécessaire de s'abtraire du matériel et de faire du provisionning.
+nécessaire de s'abstraire du matériel et de faire du provisioning.
 Cela consiste à créer
 des machines virtuelles et d'en sauver leur image (snapshot) de manière
 à pouvoir facilement en instancier une identique rapidement opérationnelle.
 Une solution complémentaire est d'utiliser
-un outils de déploiement automatisé comme `Ansible <https://www.ansible.com/>`_
+un outil de déploiement automatisé comme `Ansible <https://www.ansible.com/>`_
 qui s'exécute sur la machine virtuelle et installe toutes les dépendances.
 Il devient donc possible de créer des machines virtuelles à la demande.
 On parle d'infrastructure lorsque plusieurs machines virtuelles sont réparties
 sur plusieurs machines physiques.
 C'est de là qu'est né le terme Infrastructure as a Service (IaaS).
 
-**A restructurer pour parler d'Ansible (pour le provisionning) > bash**
+**À restructurer pour parler d'Ansible (pour le provisioning) > bash**
 
 **Parler de solutions de cloud computing comme OpenStack?**
 
@@ -157,7 +153,7 @@ Les plus utilisés sont `VMWare <https://www.vmware.com/fr.html>`_,
 `Virtualbox <https://www.virtualbox.org/>`_ et
 `KVM <https://www.linux-kvm.org/page/Main_Page>`_.
 
-Si l'on désire faire du provisionning, il est possible d'utiliser
+Si l'on désire faire du provisioning, il est possible d'utiliser
 `Vagrant <https://www.vagrantup.com/>`_ en combinaison avec Ansible.
 
 Cependant des questions concernant les problèmes de réseau que
@@ -201,7 +197,7 @@ de dépendances a été de développer d'utiliser des containers
 
 Le principe d'un container consiste à partager le noyau (kernel)
 du système hôte entre plusieurs processus faisant partie de l'espace utilisateur
-(user space). Ces processus sont appelé des containers. Ce sont des processus
+(user space). Ces processus sont appelés des containers. Ce sont des processus
 que l'on peut considérer comme des machines virtuelles dans le sens où
 dans programmes s'exécutent à l'intérieur. Chaque container est basé sur
 l'image d'un système GNU/Linux. Les logiciels installés diffèrent donc
@@ -209,7 +205,7 @@ d'un container à un autre mais ils partagent tous le même noyau: celui du
 système hôte.
 Un container est normalement sans état (stateless) dans le sens où il ne
 retrouve pas l'état dans lequel il était précédemment entre deux démarrages.
-A chaque fois qu'il démarre on se retrouve avec une machine «toute neuve».
+À chaque fois qu'il démarre on se retrouve avec une machine «toute neuve».
 Il est possible de les rendre stateful grâce au système de volumes. Celui-ci
 permet de partager des dossiers entre le système hôte et celui du container.
 Dans le cas d'un container hébergeant une base de données par exemple,
@@ -237,14 +233,14 @@ Il existe plusieurs solutions de conteneurisation; Docker, Singularity ou encore
 LXC (Linux Container). Docker est une des solutions les plus populaires et
 c'est celle qui est utilisée au CHUV pour packager ses microservices.
 
-Dans cette archictecture, le développeur n'a donc plus besoin de veiller
+Dans cette architecture, le développeur n'a donc plus besoin de veiller
 à ce que les dépendances soient installées sur sa machine virtuelle car
 la machine virtuelle doit uniquement avoir la solution de conteneurisation
 installée pour faire fonctionner son container. Les dépendances sont satisfaites
-directement par l'image qui été créée par le développpeur pour son application.
+directement par l'image qui été créée par le développeur pour son application.
 
 L'inconvénient principal de cette architecture est que les machines virtuelles
-hébergent de plus en plus de containers et que les opérateurs doivent plannifier
+hébergent de plus en plus de containers et que les opérateurs doivent planifier
 les déploiements de ceux-ci sur les différentes machines à disposition
 (en fonction des ressources demandées par chaque container). Les déploiements
 sont donc bien plus simples qu'avant mais gérer les ressources à allouer pour
@@ -261,12 +257,12 @@ prend alors la forme du schéma «:ref:`container-orch-revised-fig` ».
 .. figure:: images/container_orchestration_revised.png
    :width: 350px
    :align: center
-   :alt: Architecture utilisant un outils d'orchestration de containers
+   :alt: Architecture utilisant un outil d'orchestration de containers
 
    Architecture utilisant un outil d'orchestration de containers
 
 L'orchestration de containers est un processus automatisé qui vise à
-plannfier, coordonner et gérer les composants (containers) d'un système
+planifier, coordonner et gérer les composants (containers) d'un système
 complexe ainsi que les ressources qu'ils utilisent.
 
 .. raw:: latex
@@ -282,27 +278,27 @@ Gestion des services (Service Management):
     est également une tâche importante de ce groupe.
 
 Planification (Scheduling):
-    Ce type de tâche regroupe les décisions à prendre en terme de nombre
+    Ce type de tâche regroupe les décisions à prendre en termes de nombre
     d'instances de chaque service (scaling), à quel moment le déployer,
     le mettre à jour, etc. Veiller à ce que certains services soient
-    toujours déployés ensembles sur la même machine fait aussi parti
+    toujours déployés ensembles sur la même machine fait aussi partie
     de ce groupe de tâches.
 
 
 Gestion des ressources (Resources Management):
     Les tâches de ce type consistent à veiller que les ressources (CPU, GPU,
-    volumens, ports, IPs) sont consommées manière cohérente et disctribuées
+    volumes, ports, IP) sont consommées manière cohérente et distribuées
     comme désiré entre les différents containers.
 
 Dépendant du contexte d'autres fonctionnalités qui ne sont pas propres à
 l'orchestration de containers comme la sécurité peuvent être exigées.
 
 Une fois mise en place, une telle infrastructure permet de faire du PaaS
-(Platform as a Service). Le Paas vise à proposer une plateforme qui permet
+(Platform as a Service). Le PaaS vise à proposer une plateforme qui permet
 aux développeurs de développer, déployer, tester et gérer leurs applications
 sans devoir se soucier des problèmes liés à l'infrastructure sous-jacente.
 Aujourd'hui ces applications sont souvent packagées dans des containers.
-Microsoft Azure est une exemple de plateforme permettant aux développeurs
+Microsoft Azure est un exemple de plateforme permettant aux développeurs
 de déployer leurs containers.
 
 **Parler des changements d'habitudes du développeur? Nouvelle méthode
@@ -333,7 +329,6 @@ La différence par rapport à un système d'exploitation standard est que
 le système distribue toutes les tâches appartenant à l'espace utilisateur
 sur différentes machines (schéma «:ref:`distributed-operating-system-02-fig` »).
 
-
 .. _distributed-operating-system-02-fig:
 
 .. figure:: images/distributed_operating_system_02.png
@@ -346,7 +341,7 @@ sur différentes machines (schéma «:ref:`distributed-operating-system-02-fig` 
 Le principe de système distribué n'est pas récent. Des tentatives comme
 `Plan 9 <https://en.wikipedia.org/wiki/Plan_9_from_Bell_Labs>`_
 ont été développée avant l'existence des containers.
-Seulement, l'utilisation de ce type de systèmes de demandait de réécrire
+Seulement, l'utilisation de ce type de systèmes demandait de réécrire
 complètement ses applications très souvent dans un langage de programmation
 supportant la concurrence (pas forcément connu du développeur).
 Les solutions d'aujourd'hui ont permis de régler ce type de problèmes en partie
@@ -371,27 +366,27 @@ Le CHUV a d'ailleurs opté pour une solution de la Mesosphere mais
 sans DC/OS qui contient plus de logiciels.
 Leur système distribué est constitué de *Mesos*, *Marathon*, *ZooKeeper*
 et *Chronos*.
-Il existe déjà d'autres solutions de systèmes ditribuées prévues pour
+Il existe déjà d'autres solutions de systèmes ditribués prévues pour
 le domaine médical comme *cbrain*. Ce dernier étant prévu pour du calcul
 distribué sur un cluster de HPC (High Performance Computer), il n'a pas
 été retenu pour plusieurs raisons. La principale est que la plateforme
 du SP8 est prévue pour être déployée dans plusieurs hôpitaux à travers
 l'Europe. Des clusters de HPC coûtant significativement plus cher que
-des serveurs standards, une telle solutions compliquerait
+des serveurs standards, une telle solution compliquerait
 le déploiement de la plateforme dans chacun des hôpitaux.
 
 
 Logiciels permettant de mettre en place un système distribué
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Cette partie présente les différents logiciels utilisé dans l'infrastructure
+Cette partie présente les différents logiciels utilisés dans l'infrastructure
 du MIP. Elle a pour but d'expliquer le rôle de chaque logiciel dans l'infrastructure
 ainsi que son fonctionnement.
 
 Mesos
 -----
 
-Développé à l'université de Berkley, **Mesos** permet de gérer des clusters de
+Développé à l'université de Berkley, *Mesos* permet de gérer des clusters de
 machines.
 Ce logiciel propose plusieurs outils permettant l'isolation de CPU, de
 mémoire et de fichiers. Utiliser un tel logiciel permet donc de partager
@@ -399,8 +394,8 @@ les ressources de l'infrastructure d'un data-center.
 Il est utilisé pour la gestion de systèmes distribués de grandes
 entreprises telles que Twitter, Airbnb, Apple ou encore Verizon.
 
-Il permet de servir de kernel au datacenter et d'éviter de devoir créer
-un cluster par application. On passe ainsi d'une forme tradiotionnelle
+Il permet de servir de kernel au data center et d'éviter de devoir créer
+un cluster par application. On passe ainsi d'une forme traditionnelle
 où on utilise un cluster par application (premier schéma) à
 un cluster unique géré par Mesos (second schéma).
 
@@ -418,17 +413,17 @@ un cluster unique géré par Mesos (second schéma).
 .. figure:: images/mesos_kernel.png
    :width: 450px
    :align: center
-   :alt: Clusters géré avec Mesos
+   :alt: Cluster géré avec Mesos
 
    Cluster géré avec Mesos
 
 Deux types d'instances de Mesos fonctionnent conjointement; une instance
 *master* et une instance *slave*.
-Si l'on veut intéragir avec Mesos de manière programmatique,
+Si l'on veut interagir avec Mesos de manière programmatique,
 il est nécessaire d'utiliser un framerwork. Celui-ci est composé
 d'un scheduler (responsable de traiter les offres de ressources)
-et un executor utilsable par l'esclave pour réaliser une ou plusieurs
-tâches du framework. Il existe des framework dans différents langages;
+et un executor utilisable par l'esclave pour réaliser une ou plusieurs
+tâches du framework. Il existe des frameworks dans différents langages;
 Spark pour Scala, Hadoop ou Storm pour Java et dpark pour Python.
 
 Mesos supporte Docker et permet une isolation entre les tâches et les containers
@@ -441,7 +436,7 @@ une fois la sortie générée). Ces deux logiciels seront présentés plus loin
 dans ce document. Pour l'instant, on peut les voir comme des services
 permettant rendre l'exécution d'une application possible sur Mesos.
 Cela est possible parce que ces deux logiciels respectent l'interface
-de Mesos comme les frameworks présentés précédemment. Il comportent
+de Mesos comme les frameworks présentés précédemment. Ils comportent
 donc tous deux un scheduler et un executor (capable d'éxcuter un commande
 ou lancer un container Docker).
 
@@ -468,7 +463,7 @@ le cluster continuent d'être exécutées jusqu'à ce qu'elles soient terminées
 Par contre, plus aucune ressource supplémentaire ne peut être allouée et
 aucune nouvelle tâche ne peut être lancée.
 Si on veut faire de la haute disponibilité, il est possible de démarrer
-plusieur noeuds master. Au démarrage du cluster, *un seul* master est choisi
+plusieurs nœuds master. Au démarrage du cluster, *un seul* master est choisi
 comme *leader* parmi ceux disponibles.
 Si le leader choisit n'est plus disponible, un nouveau est choisi parmi
 les masters en fonctionnement. Ce système d'élection/réélection est réalisé
@@ -477,7 +472,7 @@ par au logiciel *ZooKeeper*.
 ZooKeeper
 ---------
 
-*ZooKeeper* permet de synchronizer différents services entre eux grâce à
+*ZooKeeper* permet de synchroniser différents services entre eux grâce à
 un système de stockage clé-valeur implémenté
 sous forme d'un système de fichiers. Les clients peuvent lire ou écrire
 dans ce système de fichier pour se transmettre des informations et ainsi
@@ -486,7 +481,7 @@ aux serveurs HTTP, etc.). ZooKeeper est utilisé par des entreprises comme
 Yahoo! et Reddit. Dans le cas de ce projet, il remplit les tâches suivantes
 dans le cluster Mesos:
 
-- Communication entre les différents master pour élire le leader.
+- Communication entre les différents masters pour élire le leader.
 - Partage des informations du leader aux masters.
 - Détection des autres agents compatibles avec Mesos (Marathon, Chronos,
   Hadoop, etc.)
@@ -517,7 +512,7 @@ Marathon
 C'est une surcouche visant à faciliter l'utilisation de Mesos. Il permet de
 l'orchestration de containers et faire du scaling (gestion des ressources
 et démarrage/arrêt d'applications) pour différents services.
-Ce services peuvent être contenus dans des containers Docker ou
+Ces services peuvent être contenus dans des containers Docker ou
 directement accessibles en ligne de commande. Dans le deuxième cas,
 il est nécessaire que ce service soit installé sur tous les noeuds
 slave du cluster.
@@ -537,7 +532,7 @@ d'une commande, il faut spécifier celle-ci avec la clé :code:`cmd`.
 Si la commande prend des ports en arguments pour rendre l'application
 accessible, il est possible d'utiliser les variables :code:`$PORT0`,
 :code:`$PORT1`, etc. pour déléguer le choix du port à Marathon.
-Un port libre sera choisi alaétoirement. On peut ensuite définir les ressources
+Un port libre sera choisi aléatoirement. On peut ensuite définir les ressources
 dont l'application à déployer a besoin (clés :code:`cpus` et :code:`mem`).
 Le minimum pour la clé :code:`cpus` est 0.1 et le minimum pour la clé
 :code:`mem` est 32. La mémoire est quantifié en MB. Les ressources spécifiées
@@ -571,7 +566,7 @@ La clé `network` spécifie le comportement que le container aura sur le réseau
 La valeur `BRIDGE` connectera le container au sous-réseau créé par Docker
 (en général `172.17.0.1/16`). Si la configuration réseau est en `HOST`,
 le container partage la même interface réseau que la machine hôte.
-Il n'y a donc plus d'isolation entre le container et la machine hôte du pointr
+Il n'y a donc plus d'isolation entre le container et la machine hôte du point
 de vue du réseau.
 
 Chronos
@@ -591,7 +586,7 @@ Une autre utilisation possible est de lancer des tâches qui doivent être
 lancées qu'une seule fois. Un cas rentrant dans ce type de tâches est
 le lancement d'un script analysant une grande quantité de données
 (dans une base de données ou un fichier) puis en génère le résultat
-de cet analyse en sortie dans un fichier dans un répertoire.
+de cette analyse en sortie dans un fichier dans un répertoire.
 
 
 Problématiques non-résolues par les solutions de systèmes distribués
@@ -619,12 +614,12 @@ Marathon propose une API REST permettant d'instancier des applications et
 d'en gérer le nombre d'instances. Le but du travail consiste à réaliser
 une API permettant de déployer des applications (web services) packagées
 dans des containers Docker. Cette API serait une surcouche à celle de Marathon.
-Pour qu'une application soit déployable, il faudrait que les métadonnée
+Pour qu'une application soit déployable, il faudrait que les métadonnées
 contenues dans le Dockerfile de celle-ci décrivent les ressources
 (CPU et mémoire) dont elle a besoin.
 
 Si cette partie est réalisée, le développeur pourra rechercher et mettre
-en oeuvre une solution permettant d'exposer les applications instanciées
+en œuvre une solution permettant d'exposer les applications instanciées
 dans Marathon. Des solutions open source existantes comme *traefik* et *vamp*
 peuvent constituer de bonnes pistes pour régler cette problématique.
 
@@ -691,7 +686,7 @@ les trois autres embarquant Mesos Slave.
 
 Le but de cette approche a été de permettre au développeur de prendre en main
 et comprendre comment chaque composant interagit avec les autres.
-Vagrant a utilisé en combinaison avec KVM pour la gestion des marchines
+Vagrant a utilisé en combinaison avec KVM pour la gestion des machines
 virtuelles constituant le cluster.
 
 Vagrant est un outil open source permettant de créer et gérer des machines
@@ -716,11 +711,11 @@ la solution à privilégier. Utilisé par DigitalOcean et Linode, KVM est un bon
 compromis entre performance et sécurité.
 
 Un des gros avantages de Vagrant est qu'il peut être utilisé conjointement
-à Ansible. Cela permet notamment de faire du provisionning et de pouvoir
+à Ansible. Cela permet notamment de faire du provisioning et de pouvoir
 recréer facilement un cluster de machine par exemple.
 
 `Ansible` est un outil de déploiement automatisé et de provisioning.
-Lors du déploiement, une machine maître est responsable de
+Lors du déploiement, une machine est responsable de
 l'orchestration du déploiement et commande machines où doivent être
 déployés les services.
 
@@ -731,7 +726,7 @@ déployés les services.
 Ansible s'utilise généralement avec `Ansible Playbook` qui permet d'exécuter
 Ansible et de mettre en place des services grâce à des scripts appelés
 *playbooks*. Voici un exemple de playbook permettant de mettre en place
-un noeud slave pour un cluster mesos:
+un nœud slave pour un cluster mesos:
 
 .. literalinclude:: examples/playbook.yml
    :language: yaml
@@ -767,7 +762,7 @@ de machines en quelques minutes.
 Le problème de la première approche a été son besoin assez important
 en ressources. Elle a été utile pour comprendre comment fonctionnent et
 se configurent les différents composants de l'infrastructure mais ne
-permettait pas de tester l'API qui serait développer avec ce cluster.
+permettait pas de tester l'API qui serait développée avec ce cluster.
 
 C'est pourquoi une seconde solution utilisant Docker a été mise en place.
 En plus d'être plus légère, le cluster était mis en place plus rapidement
@@ -793,7 +788,7 @@ Cette partie décrit la manière dont le projet a été géré au niveau de
 sa planification et de la gestion des risques.
 
 Planification
--------------
+~~~~~~~~~~~~~
 
 **Insérer la planification ou la mettre en annexes. Mettre
 la première planification puis la deuxième? À voir.**
@@ -811,7 +806,7 @@ un développeur qui n'a pas de connaissances préalables en systèmes distribué
 et en PaaS.
 
 Définition et gestion des risques
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Nombreuses technologies à prendre en main par rapport au temps mis
   à disposition.
@@ -823,16 +818,16 @@ Conception
 ==========
 
 Architecture générale
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 Si le schéma dans l'introduction suffit pas besoin d'en présenter un similaire
 ici.
 
 Base de données
----------------
+~~~~~~~~~~~~~~~
 
 Architecture logicielle
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 - Django
 
@@ -842,13 +837,13 @@ Implémentation
 ==============
 
 API
----
+~~~
 
 Extraction des métadonnées
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Interaction avec l'API Marathon
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Tests
 =====
@@ -863,14 +858,14 @@ une tâche que le développeur peut oublier d'exécuter, un outil d'intégration
 continue a été utilisé pour automatiser le lancement des tests.
 
 Tests unitaires
----------------
+~~~~~~~~~~~~~~~
 
 Afin d'éviter des régressions et de garder un code respectant
 le `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_, plusieurs outils
 ont été utilisés. L'environnement python propose plusieurs logiciels permettant
 de garder le code lisible et de le valider.
 `YAPF <https://github.com/google/yapf>`_ (Yet Another Python Formatter) permet
-de réindenter le code de manière à ce qu'il respecte le PEP8.
+de indenter le code de manière à ce qu'il respecte le PEP8.
 `flake8 <http://flake8.pycqa.org/en/latest/>`_ permet de vérifier que le code
 respecte le PEP8.
 Concernant les tests unitaires, Django propose déjà une extension permettant
@@ -923,7 +918,7 @@ un outil d'intégration continue (*CI*) comme
 `Travis CI <https://travis-ci.org/>`_.
 
 Travis CI: un outil d'intégration continue
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ce type d'outils permet de monitorer le dépôt Git d'un projet et de réaliser
 des actions à chaque nouveau push. De cette manière, on peut facilement
@@ -973,7 +968,7 @@ Voici un exemple de fichier de configuration pour Travis CI:
 
 Ici on spécifie que le langage du projet est :code:`Python` et que la version
 de Python à utiliser est :code:`python 3.6`. On définit ensuite comment
-les dépendences doivent être installées (ici avec :code:`pip install`).
+les dépendances doivent être installées (ici avec :code:`pip install`).
 Une fois les dépendances installées, on entre dans la partie avant les tests
 qui consiste à vérifier que le code respecte le PEP8.
 Finalement, on lance les tests avec le fichier :code:`manage.py` de Django.
@@ -1008,13 +1003,13 @@ Conclusion
 .. la problématique.
 
 Analyse critique
-----------------
+~~~~~~~~~~~~~~~~
 
 Résultats
----------
+~~~~~~~~~
 
 Conclusion
-----------
+~~~~~~~~~~
 
 Remerciements
 =============
@@ -1027,10 +1022,3 @@ Remerciements
 .. bibliography:: references.bib
    :notcited:
    :style: unsrt
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
