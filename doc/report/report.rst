@@ -684,8 +684,10 @@ le développeur a dû mettre en place un cluster lui-même.
 Deux approches ont été adoptées. La première a visé à mettre en place
 un cluster de machines en se basant sur les cours mis à disposition par
 la communauté de Mesosphere. Cette approche a consisté à mettre en place
-ZooKeeper, Mesos puis Marathon et finalement Chronos sur un système Linux
-`CentOS <https://www.centos.org/>`_ (machine virtuelle).
+ZooKeeper, Mesos puis Marathon et finalement Chronos sur une machine virtuelle.
+Le système de la machine virtuelle e)st un système GNU/Linux
+`CentOS <https://www.centos.org/>`_ (dérivé de la distribution
+`Red Hat <https://www.redhat.com/en>`_).
 Une fois ces logiciels mis en place, il a été possible de passer d'un cluster
 d'une machine à un cluster de quatre machines;
 une embarquant Mesos Master/Slave, Marathon, ZooKeeper et Chronos et
@@ -837,9 +839,9 @@ Si des ports du container doivent être exposés, il est nécessaire d'utiliser
 la clé `port`. En mode `HOST`, il faut respecter la syntaxe
 `<port_hôte>:<port_container>`.
 
-En plus d'être plus léger, le cluster démarrait bien plus rapidement
+En plus d'être plus léger, le cluster démarre bien plus rapidement
 qu'avec la solution précédente avec Ansible (une minute avec Docker
-contre douze avec Vagrant et Ansible). De plus cette solution était plus
+contre douze avec Vagrant et Ansible). De plus cette solution est plus
 facilement partageable. Elle a d'ailleurs été partagée avec un collègue
 dont le travail de bachelor s'insérait dans cette infrastructure.
 
@@ -852,6 +854,9 @@ un des langages avec lequel il est le plus à l'aise. De plus, il propose
 déjà `Django <https://www.djangoproject.com/>`_ comme framework web.
 Combiné à `Django REST framework <http://www.django-rest-framework.org/>`_,
 le développement d'une API est accéléré.
+
+Comme Docker est un impératif nécessaire pour faire fonctionner l'environnement
+de test, le système d'exploitation choisi pour le développement est GNU\Linux.
 
 Gestion de projet
 =================
@@ -868,8 +873,7 @@ la première planification puis la deuxième? À voir.**
 La première phase du projet (10 premières semaines) ont consisté à prendre
 en main les outils et technologies présentées précédemment; Vagrant,
 Mesosphere (Mesos et Marathon), le système d'exploitation
-CentOS (dérivé de la distribution `Red Hat <https://www.redhat.com/en>`_)
-et Ansible.
+CentOS et Ansible.
 
 À défaut de se lancer directement dans l'implémentation d'une solution,
 cette approche a permis de mieux comprendre la problématique.
@@ -892,14 +896,51 @@ Conception
 Architecture générale
 ~~~~~~~~~~~~~~~~~~~~~
 
-Si le schéma dans l'introduction suffit pas besoin d'en présenter un similaire
-ici.
+.. _final-arch-fig:
+
+.. figure:: images/architecture_schema.png
+   :width: 550px
+   :align: center
+   :alt: Schéma d'architecture finale
+
+   Schéma d'architecture finale
+
+La figure :num:`Fig. #final-arch-fig`, représente ce qui a été mis en place
+au moment du rendu. Les différents composants sont des containers Docker.
+Ces containers sont coloriés de deux manières. Soit en bleu foncé s'il s'agit
+d'un container embarquant un service nécessaire au fonctionnement
+de l'infrastructure, soit en bleu clair s'il s'agit d'un container déployé
+par Mesos.
+
+L'utilisateur peut donc interagir avec l'API implémentée
+en Python pour ajouter/modifier/supprimer des services. Ces services sont
+principalement des applications de visualisation développées à l'aide de
+frameworks ou bibliothèques comme Angular, React, D3, Bokeh, etc.
+
+Les informations concernant le déploiement (mémoire, CPU, ports à exposer,
+image Docker à utiliser) sont stockées dans la base de données.
+
+L'utilisateur peut ensuite demander le déploiement d'un service au-travers de
+l'API. Cela demande à l'API de communiquer avec le container embarquant Marathon
+pour demander le déploiement de l'application spécifiée par l'utilisateur.
+Le container Marathon transmet la demande de création de la tâche au container
+contenant Mesos-Master (primary) qui chargera le container Mesos-Slave (replica)
+d'exécuter la tâche et d'instancier le container embarquant le service demandé.
+Si l'image Docker du service n'est pas disponible sur le replica, elle est
+téléchargée avant l'instanciation du container.
+
+
+*TODO: Interaction traefik - Marathon*
 
 Base de données
 ~~~~~~~~~~~~~~~
 
-Architecture logicielle
-~~~~~~~~~~~~~~~~~~~~~~~
+Cette section décrit comment la base de données a été conçue.
+
+*Présenter les deux modèles E-A (wokflow + service VS modèle simple)*
+
+Django
+~~~~~~
 
 - Django
 
@@ -947,10 +988,6 @@ une API. Il suffit ensuite de définir des méthodes suivant le pattern
 :code:`test_what_you_test` implémentant chacune un test unitaire.
 Il est ensuite possible d'utiliser des assertions afin de valider
 les résultats.
-
-.. raw:: latex
-
-    \clearpage
 
 Voici un exemple définissant un cas de test avec deux tests unitaires:
 
@@ -1011,10 +1048,6 @@ son projet:
 3. Créer un fichier :code:`.travis.yml` et l'ajouter dans le dépôt. Ce fichier
    décrit la configuration de Travis; language, OS,
    installation des dépendances, scripts de tests, etc.
-
-.. raw:: latex
-
-    \clearpage
 
 Si la configuration est bien faite, Travis devrait builder à chaque push sur
 le dépôt. Pour tester, il suffit de modifier un fichier du dépôt puis
@@ -1085,11 +1118,6 @@ Conclusion
 
 Remerciements
 =============
-
-.. .. raw:: latex
-
-..  \bibliographystyle{plain}
-..  \bibliography{references.bib}
 
 .. bibliography:: references.bib
    :notcited:
