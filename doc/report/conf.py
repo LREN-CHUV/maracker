@@ -30,7 +30,10 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinxcontrib.bibtex']
+extensions = [
+    'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinxcontrib.bibtex',
+    'sphinx_numfig'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -106,11 +109,13 @@ latex_engine = 'xelatex'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    'papersize': 'a4paper',
+    'papersize':
+    'a4paper',
 
     # The font size ('10pt', '11pt' or '12pt').
     #
-    'pointsize': '12pt',
+    'pointsize':
+    '12pt',
 
     # Additional stuff for the LaTeX preamble.
     #
@@ -119,13 +124,15 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-    'fontpkg': r'\setmainfont{Linux Libertine O}'
-               r'\setsansfont{Linux Biolinum O}'
-               r'\setmonofont[Scale=0.9]{Inconsolata}'
-               r'\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text,'
-               r'Numbers=OldStyle,'
-               r'Ligatures={Common,Rare,Discretionary,Historic}}',
-    'fncychap': r'\usepackage[Bjornstrup]{fncychap}',
+    'fontpkg':
+    r'\setmainfont{Linux Libertine O}'
+    r'\setsansfont{Linux Biolinum O}'
+    r'\setmonofont[Scale=0.9]{Inconsolata}'
+    r'\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text,'
+    r'Numbers=OldStyle,'
+    r'Ligatures={Common,Rare,Discretionary,Historic}}',
+    'fncychap':
+    r'\usepackage[Bjornstrup]{fncychap}',
 }
 
 latex_show_urls = 'footnote'
@@ -134,8 +141,7 @@ latex_show_urls = 'footnote'
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Maracker.tex',
-        'Maracker: rapport de projet',
+    (master_doc, 'Maracker.tex', 'Maracker: rapport de projet',
      'Julien M\'Poy, supervisé par Aïcha Rizzotti', 'report'),
 ]
 
@@ -154,7 +160,3 @@ texinfo_documents = [
     (master_doc, 'Maracker', 'Maracker Documentation', author, 'Maracker',
      'One line description of project.', 'Miscellaneous'),
 ]
-
-# Figures
-
-numfig = True

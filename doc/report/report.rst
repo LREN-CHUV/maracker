@@ -23,10 +23,10 @@ Le CHUV participe au projet Human Brain Project qui a pour but de mettre en
 place une infrastructure de recherche pour différents domaines liés à
 l’étude du cerveau (neurosciences mais pas uniquement).
 Ce projet est décomposé en 12 sous-projets. L’équipe de développement du CHUV
-s’occupe de la réalisation du sous-projet 8 (SBP8):
+s’occupe de la réalisation du sous-projet 8 (SP8):
 Medical Informatics Platform (MIP).
 
-Le premier but du SBP8 est de proposer divers outils permettant de mieux
+Le premier but du SP8 est de proposer divers outils permettant de mieux
 comprendre les différences et similitudes entre différentes maladies
 du cerveau. Ces outils permettraient de mieux classifier, diagnostiquer
 et traiter ces maladies en se basant sur une grande quantité de données
@@ -41,10 +41,11 @@ la gérer (démarrage, arrêt, exposition) aujourd’hui.
 
 La plateforme MIP contient déjà une infrastructure permettant de gérer
 des services packagés dans des containers `Docker <https://www.docker.com/>`_
-et répartis dans un cluster de machines (système distribué) avec
-les technologies de `Mesosphere <https://mesosphere.com/>`_
+et répartis dans un cluster de machines (système distribué).
+Les technologies de `Mesosphere <https://mesosphere.com/>`_
 (`Mesos <http://mesos.apache.org/>`_  et
-`Marathon <https://mesosphere.github.io/marathon/>`_).
+`Marathon <https://mesosphere.github.io/marathon/>`_) ont été utilisées pour
+y parvenir.
 
 .. raw:: latex
 
@@ -58,7 +59,7 @@ par présenter le fonctionnement et l'intérêt des systèmes distribués.
 
 Avant l'arrivée des applications web, l'architecture se limitait à
 une couche d'application se superposant à celle du système d'exploitation
-(OS) qui se superpose à l'hardware (schéma «:ref:`computer-arch-fig` »).
+(OS) qui se superpose à l'hardware (:num:`Fig. #computer-arch-fig`).
 
 .. _computer-arch-fig:
 
@@ -71,18 +72,17 @@ une couche d'application se superposant à celle du système d'exploitation
 
 Si on est dans le cas d'une application web, l'application peut
 être une application web dite monolithique.
-On dit qu'une application est monolithique lorsque elle est constituée
-d'un seul bloc et que sa conception n'a pas été prévue pour la scinder
-en différentes parties (front-end, back-end et éventuellement
-la base de données).
+Cela signifie qu'elle est constituée d'un seul bloc et que
+sa conception n'a pas été prévue pour la scinder en différentes
+parties (front-end, back-end et éventuellement la base de données).
 
-Les applications devenant plus populaires, il a fallu déployer celles-ci
+Les applications web devenant plus populaires, il a fallu déployer celles-ci
 sur plusieurs machines de manière à ce qu'elles puissent supporter
 les nombreux utilisateurs de ces applications. On parle alors de haute
 disponibilité et de scaling. Les machines sont donc organisées en clusters
 (groupe de machines) et un load-balancer (répartiteur de charge) permet
 de répartir les requêtes des utilisateurs sur les différentes machines
-(schéma «:ref:`high-availability-fig` »).
+(:num:`Fig. #high-availability-fig`).
 
 .. _high-availability-fig:
 
@@ -96,13 +96,14 @@ de répartir les requêtes des utilisateurs sur les différentes machines
 Comme les données de certaines applications web pouvaient être également être
 intéressante pour d'autres logiciels. Une nouvelle architecture a été adoptée
 par les développeurs d'applications web: l'architecture orientée service
-(Service Oriented Architecture) abrégée SOA.
-Cette nouvelle architecture propose donner un point d'entrée pour les humains
-(des interfaces graphiques) et un point d'entrée pour les machines fournissant
-des données sous différents formats (:code:`JSON`, :code:`XML`, ...).
+(Service Oriented Architecture) abrégée *SOA*.
+Cette nouvelle architecture propose de donner un point d'entrée pour
+les humains (des interfaces graphiques) et un point d'entrée pour
+les machines fournissant des données sous différents formats
+(:code:`JSON`, :code:`XML`, ...).
 Afin d'adopter cette architecture les applications sont souvent découpées en
 deux parties; une partie fournissant un front-end et l'autre étant le service
-(schéma «:ref:`soa-fig` »).
+(:num:`Fig. #soa-fig`).
 
 .. _soa-fig:
 
@@ -136,7 +137,7 @@ C'est de là qu'est né le terme Infrastructure as a Service (IaaS).
 **Expliquer le Iaas?**
 
 La virtualisation est la solution qui est la plus utilisée. Donnant ainsi
-une architecture représentée par le schéma «:ref:`virtualization-fig` »:
+une architecture représentée par le :num:`Fig. #virtualization-fig`:
 
 .. _virtualization-fig:
 
@@ -157,10 +158,9 @@ Si l'on désire faire du provisioning, il est possible d'utiliser
 `Vagrant <https://www.vagrantup.com/>`_ en combinaison avec Ansible.
 
 Cependant des questions concernant les problèmes de réseau que
-les utilisateurs peuvent rencontrer se posent. Comment
-gérer ces machines qui peuvent être créées à la demande et
-gérer leurs configurations réseau pour que les applications
-qu'elles hébergent soient accessibles aux utilisateurs?
+se posent. Comment gérer ces machines qui peuvent être créées
+à la demande et gérer leurs configurations réseau pour que
+les applications qu'elles hébergent soient accessibles aux utilisateurs?
 Cela requiert que les développeurs connaissent l'ensemble de la stack.
 Ce qui demande un investissement supplémentaire de leur part.
 Une architecture basée sur des microservices a été proposée pour éviter
@@ -177,13 +177,13 @@ ne sont pas écrites dans le même langages.
 
    Architecture basée microservices
 
-Dans le schéma «:ref:`microservices-fig` », les utilisateurs finaux utilisent les applications
-et les applications utilisent les services.
+Dans la figure :num:`Fig. #microservices-fig`, les utilisateurs finaux
+utilisent les applications et les applications utilisent les services.
 Le problème de cette architecture est qu'il y un nombre important de services
 à gérer. Il faut donc veiller à ce que les dépendances de chaque application
 et service soit satisfaites. La solution trouvée pour résoudre ces problèmes
 de dépendances a été de développer d'utiliser des containers
-(schéma «:ref:`containerized-microservices-fig` »).
+(:num:`Fig. #containerized-microservices-fig`).
 
 .. _containerized-microservices-fig:
 
@@ -199,36 +199,37 @@ Le principe d'un container consiste à partager le noyau (kernel)
 du système hôte entre plusieurs processus faisant partie de l'espace utilisateur
 (user space). Ces processus sont appelés des containers. Ce sont des processus
 que l'on peut considérer comme des machines virtuelles dans le sens où
-dans programmes s'exécutent à l'intérieur. Chaque container est basé sur
+des programmes s'exécutent à l'intérieur. Chaque container est basé sur
 l'image d'un système GNU/Linux. Les logiciels installés diffèrent donc
 d'un container à un autre mais ils partagent tous le même noyau: celui du
 système hôte.
+
 Un container est normalement sans état (stateless) dans le sens où il ne
 retrouve pas l'état dans lequel il était précédemment entre deux démarrages.
 À chaque fois qu'il démarre on se retrouve avec une machine «toute neuve».
+
 Il est possible de les rendre stateful grâce au système de volumes. Celui-ci
 permet de partager des dossiers entre le système hôte et celui du container.
 Dans le cas d'un container hébergeant une base de données par exemple,
 un container stateful peut dumper la base de données régulièrement
 dans un dossier partagé. De cette manière on garde des backups de la base de
 données sur le système hôte. On peut ensuite rendre le container intelligent
-pour qu'il vérifie la présence de dump dans le dossier qu'il partage avec
+pour qu'il vérifie la présence de dumps dans le dossier qu'il partage avec
 l'hôte. S'il y en a, il les exécute et retrouve une base de données similaire
 à celle avant son redémarrage.
+
 Comme ils partagent le même noyau, les containers sont moins gourmands en
 ressources que les machines virtuelles standards. On peut donc en lancer
 plusieurs sur un même système hôte. C'est d'ailleurs l'intérêt des containers.
 Ils sont plus légers (on parle de 8 MB pour une image basée sur Alpine Linux)
 que les machines virtuelles.
+
 Un autre avantage des containers est qu'il est possible de créer sa propre
 image. Un développeur qui crée une application peut donc créer un container
 embarquant son application. La rendant ainsi plus facilement distribuable
 car l'image contient toutes les dépendances requises par l'application
 développée.
-En principe, un container ne doit exécuter un seul processus afin que
-signaux de processus (:code:`SIGINT`, :code:`SIGTERM`, etc.) envoyés de l'hôte
-au container soient traités comme il faut et qu'il ne reste pas de processus
-zombies.
+
 Il existe plusieurs solutions de conteneurisation; Docker, Singularity ou encore
 LXC (Linux Container). Docker est une des solutions les plus populaires et
 c'est celle qui est utilisée au CHUV pour packager ses microservices.
@@ -250,7 +251,7 @@ C'est pourquoi des outils d'orchestration de containers ont été développés.
 Ceux-ci permettent d'automatiser cette procédure et donc de décharger
 les opérateurs de cette responsabilité.
 Si on utilise un outil d'orchestration de container, l'architecture
-prend alors la forme du schéma «:ref:`container-orch-revised-fig` ».
+prend alors la forme de la figure «:num:`Fig. #container-orch-revised-fig`.
 
 .. _container-orch-revised-fig:
 
@@ -269,17 +270,17 @@ complexe ainsi que les ressources qu'ils utilisent.
 
     \clearpage
 
-L'orchestration de containers consiste en trois type de tâches:
+L'orchestration de containers consiste en trois types de tâches:
 
 Gestion des services (Service Management):
     Ce groupe est responsable de définir ce qu'il faut faire avec
     chaque service une fois qu'il est déployé et comment en faire
-    communiquer plusieurs) entre eux. La vérification de la santé du service
+    communiquer plusieurs entre eux. La vérification de la santé du service
     est également une tâche importante de ce groupe.
 
 Planification (Scheduling):
     Ce type de tâche regroupe les décisions à prendre en termes de nombre
-    d'instances de chaque service (scaling), à quel moment le déployer,
+    d'instances de chaque service (scaling), à quel moment le(s) déployer,
     le mettre à jour, etc. Veiller à ce que certains services soient
     toujours déployés ensembles sur la même machine fait aussi partie
     de ce groupe de tâches.
@@ -287,10 +288,10 @@ Planification (Scheduling):
 
 Gestion des ressources (Resources Management):
     Les tâches de ce type consistent à veiller que les ressources (CPU, GPU,
-    volumes, ports, IP) sont consommées manière cohérente et distribuées
+    volumes, ports, IP) sont consommées de manière cohérente et distribuées
     comme désiré entre les différents containers.
 
-Dépendant du contexte d'autres fonctionnalités qui ne sont pas propres à
+Dépendant du contexte, d'autres fonctionnalités qui ne sont pas propres à
 l'orchestration de containers comme la sécurité peuvent être exigées.
 
 Une fois mise en place, une telle infrastructure permet de faire du PaaS
@@ -319,7 +320,7 @@ de développement (source --> CI/Test/Packages ---> Image Docker ---> prod)**
 
 Finalement, en observant toutes ces couches, on peut comparer le fonctionnement
 d'un tel environnement à un système d'exploitation
-(schéma «:ref:`operating-system-fig` »). La couche contenant
+(:num:`Fig. #operating-system-fig` »). La couche contenant
 les applications et services peut s'apparenter à des processus
 s'exécutant dans l'espace utilisateur.
 La couche responsable de l'orchestration correspondrait à la couche de l'espace
@@ -327,7 +328,7 @@ kernel (aussi appelé system space). Les containers seraient vus comme
 des microkernels et tout le reste serait dans la couche hardware.
 La différence par rapport à un système d'exploitation standard est que
 le système distribue toutes les tâches appartenant à l'espace utilisateur
-sur différentes machines (schéma «:ref:`distributed-operating-system-02-fig` »).
+sur différentes machines (:num:`Fig. #distributed-operating-system-02-fig`).
 
 .. _distributed-operating-system-02-fig:
 
@@ -353,7 +354,7 @@ l'application.
 Même s'il est appelé *système d'exploitation*, le système distribué est plutôt
 vu comme une couche se superposant à l'OS existant de la machine hôte.
 Il existe de nombreuses solutions permettant de mettre en place un système
-d'exploitation de manière plus ou moins complète.
+d'exploitation plus ou moins complet.
 Certaines comme `Docker Swarm <https://docs.docker.com/swarm/overview/>`_,
 `ECS <https://aws.amazon.com/ecs/>`_ s'occupent uniquement
 de l'orchestration des containers alors que d'autres solutions comme
@@ -370,7 +371,7 @@ Il existe déjà d'autres solutions de systèmes ditribués prévues pour
 le domaine médical comme *cbrain*. Ce dernier étant prévu pour du calcul
 distribué sur un cluster de HPC (High Performance Computer), il n'a pas
 été retenu pour plusieurs raisons. La principale est que la plateforme
-du SP8 est prévue pour être déployée dans plusieurs hôpitaux à travers
+du MIP est prévue pour être déployée dans plusieurs hôpitaux à travers
 l'Europe. Des clusters de HPC coûtant significativement plus cher que
 des serveurs standards, une telle solution compliquerait
 le déploiement de la plateforme dans chacun des hôpitaux.
@@ -396,12 +397,10 @@ entreprises telles que Twitter, Airbnb, Apple ou encore Verizon.
 
 Il permet de servir de kernel au data center et d'éviter de devoir créer
 un cluster par application. On passe ainsi d'une forme traditionnelle
-où on utilise un cluster par application (premier schéma) à
-un cluster unique géré par Mesos (second schéma).
+où on utilise un cluster par application (:num:`Fig. #no-mesos-cluster-fig`
+à un cluster unique géré par Mesos (:num:`Fig. #mesos-kernel-fig`).
 
-.. raw:: latex
-
-    \clearpage
+.. _no-mesos-cluster-fig:
 
 .. figure:: images/cluster_without_mesos.png
    :width: 450px
@@ -410,6 +409,8 @@ un cluster unique géré par Mesos (second schéma).
 
    Clusters traditionnels sans Mesos
 
+.. _mesos-kernel-fig:
+
 .. figure:: images/mesos_kernel.png
    :width: 450px
    :align: center
@@ -417,56 +418,61 @@ un cluster unique géré par Mesos (second schéma).
 
    Cluster géré avec Mesos
 
-Deux types d'instances de Mesos fonctionnent conjointement; une instance
-*master* et une instance *slave*.
+Deux types d'instances de Mesos fonctionnent conjointement; les instances
+*primary* (mesos-master) et les instances *replica* (mesos-slave).
 Si l'on veut interagir avec Mesos de manière programmatique,
 il est nécessaire d'utiliser un framerwork. Celui-ci est composé
 d'un scheduler (responsable de traiter les offres de ressources)
-et un executor utilisable par l'esclave pour réaliser une ou plusieurs
+et un executor utilisable par les nœud replica pour réaliser une ou plusieurs
 tâches du framework. Il existe des frameworks dans différents langages;
 Spark pour Scala, Hadoop ou Storm pour Java et dpark pour Python.
 
 Mesos supporte Docker et permet une isolation entre les tâches et les containers
 devant les réaliser. Concernant son utilisation, Mesos propose un CLI
 (Command Line Interface) et une interface web permettant son administration.
+
 Dans le cadre de ce projet, *Marathon* est utilisé pour déployer
 les services et les exécuter sur Mesos. *Chronos* est utilisé pour
 les tâches uniques (lancement de scripts générant des sorties et se terminant
 une fois la sortie générée). Ces deux logiciels seront présentés plus loin
 dans ce document. Pour l'instant, on peut les voir comme des services
-permettant rendre l'exécution d'une application possible sur Mesos.
+permettant de rendre l'exécution d'une application possible sur Mesos.
 Cela est possible parce que ces deux logiciels respectent l'interface
 de Mesos comme les frameworks présentés précédemment. Ils comportent
-donc tous deux un scheduler et un executor (capable d'éxcuter un commande
+donc chacun un scheduler et un executor (capable d'exécuter un commande
 ou lancer un container Docker).
 
 .. raw:: latex
 
     \clearpage
 
-L'interaction entre le framework, le master et le slave se fait de la manière
-suivante:
+L'interaction entre le framework, le nœud primary et le nœud replica
+se fait de la manière suivante:
 
-1. Le slave notifie le master des ressources (nombre de CPUs, mémoire, etc.)
-   dont il dispose.
-2. Le master transmet l'offre de ressources du slave au framework.
-3. Le scheduler du framework répond au master en lui transmettant des tâches
-   à réaliser par le slave à disposition.
-4. Le master transmet les tâches au slave qui exécute les tâches du framework
-   en utilisant les executors de ce dernier. Si les tâches du framework
-   n'utilisent pas toutes les ressources du slave, celui-ci peut proposer
-   le reste des ressources disponibles à un autre framework.
-5. Lorsqu'une tâche est terminée, le slave recommence le cycle à l'étape 1.
+1. Le nœud replica notifie le nœud primary des ressources (nombre de CPUs,
+   mémoire, etc.) dont il dispose.
+2. Le nœud primary transmet l'offre de ressources du nœud replica au framework.
+3. Le scheduler du framework répond au nœud primary en lui transmettant
+   des tâches à réaliser par le nœud replica à disposition.
+4. Le nœud primary transmet les tâches au nœud replica pour qu'il les exécute
+   en utilisant les executors du framework.
+   Si les tâches du framework n'utilisent pas toutes les ressources du
+   nœud replica, celui-ci peut proposer le reste des ressources disponibles à
+   un autre framework.
+5. Lorsqu'une tâche est terminée, le nœeud replica recommence le cycle à
+   l'étape 1.
 
-Lorsque le master courant n'est plus disponible, les tâches en cours sur
-le cluster continuent d'être exécutées jusqu'à ce qu'elles soient terminées.
+Lorsque le nœeud primary courant n'est plus disponible, les tâches en cours sur
+le cluster continuent d'être exécutées sur les nœuds replica jusqu'à ce
+qu'elles soient terminées.
 Par contre, plus aucune ressource supplémentaire ne peut être allouée et
 aucune nouvelle tâche ne peut être lancée.
+
 Si on veut faire de la haute disponibilité, il est possible de démarrer
-plusieurs nœuds master. Au démarrage du cluster, *un seul* master est choisi
+plusieurs nœuds primary. Au démarrage du cluster, *un seul* primary est choisi
 comme *leader* parmi ceux disponibles.
 Si le leader choisit n'est plus disponible, un nouveau est choisi parmi
-les masters en fonctionnement. Ce système d'élection/réélection est réalisé
+les primarys en fonctionnement. Ce système d'élection/réélection est réalisé
 par au logiciel *ZooKeeper*.
 
 ZooKeeper
@@ -475,14 +481,14 @@ ZooKeeper
 *ZooKeeper* permet de synchroniser différents services entre eux grâce à
 un système de stockage clé-valeur implémenté
 sous forme d'un système de fichiers. Les clients peuvent lire ou écrire
-dans ce système de fichier pour se transmettre des informations et ainsi
+dans ce système de fichiers pour se transmettre des informations et ainsi
 partager leurs configurations (accès aux serveurs de base de données, accès
 aux serveurs HTTP, etc.). ZooKeeper est utilisé par des entreprises comme
 Yahoo! et Reddit. Dans le cas de ce projet, il remplit les tâches suivantes
 dans le cluster Mesos:
 
-- Communication entre les différents masters pour élire le leader.
-- Partage des informations du leader aux masters.
+- Communication entre les différents primary pour élire le leader.
+- Partage des informations du leader aux primary.
 - Détection des autres agents compatibles avec Mesos (Marathon, Chronos,
   Hadoop, etc.)
 
@@ -508,14 +514,14 @@ la commande :code:`zookeeper-client`.
 Marathon
 --------
 
-**Marathon** est un outil de PaaS (Platform as a service).
+**Marathon** est un outil de PaaS (Platform as a Service).
 C'est une surcouche visant à faciliter l'utilisation de Mesos. Il permet de
 l'orchestration de containers et faire du scaling (gestion des ressources
 et démarrage/arrêt d'applications) pour différents services.
 Ces services peuvent être contenus dans des containers Docker ou
 directement accessibles en ligne de commande. Dans le deuxième cas,
 il est nécessaire que ce service soit installé sur tous les noeuds
-slave du cluster.
+replica du cluster.
 Marathon propose une interface web d'administration et une *API REST*
 implémentée en *Scala*.
 
@@ -535,9 +541,10 @@ accessible, il est possible d'utiliser les variables :code:`$PORT0`,
 Un port libre sera choisi aléatoirement. On peut ensuite définir les ressources
 dont l'application à déployer a besoin (clés :code:`cpus` et :code:`mem`).
 Le minimum pour la clé :code:`cpus` est 0.1 et le minimum pour la clé
-:code:`mem` est 32. La mémoire est quantifié en MB. Les ressources spécifiées
-sont la quantité de ressources par instance. Il faut également spécifier
-le nombre d'instances à l'aide de la clé :code:`instances`.
+:code:`mem` est 32. La mémoire est quantifié en *megabytes* (MB).
+Les ressources spécifiées sont la quantité de ressources par instance.
+Il faut également spécifier le nombre d'instances à l'aide de
+la clé :code:`instances`.
 Si l'on veut modifier une application déjà déployée, il suffit de faire
 une requête :code:`PUT` sur l'API avec les champs modifiés
 (exemple: le nombre d'instances). Marathon opérera les modifications
@@ -572,7 +579,7 @@ de vue du réseau.
 Chronos
 -------
 
-*Chronos* est l'équivalent du cron de Linux pour la stack Mesos. Il peut être
+*Chronos* est l'équivalent du cron de Linux pour Mesos. Il peut être
 utilisé pour planifier des tâches au-travers de clusters Mesos et gérer des
 dépendances entre eux de manière plus ou moins intelligente.
 
@@ -585,8 +592,8 @@ pour faire des backups.
 Une autre utilisation possible est de lancer des tâches qui doivent être
 lancées qu'une seule fois. Un cas rentrant dans ce type de tâches est
 le lancement d'un script analysant une grande quantité de données
-(dans une base de données ou un fichier) puis en génère le résultat
-de cette analyse en sortie dans un fichier dans un répertoire.
+(dans une base de données ou un fichier) pour en génèrer un résultat
+en sortie dans un fichier dans un répertoire.
 
 
 Problématiques non-résolues par les solutions de systèmes distribués
@@ -633,8 +640,8 @@ On peut donc résumer les objectifs de la manière suivante:
    applications disponibles et déployables dans l’infrastructure.
    Cette base de données contiendrait plusieurs informations;
    nom de l’image Docker, nom de l’application, description de l’application
-   et des informations de déploiement (mémoire, CPU nécessaires)
-   contenus.
+   et des informations de déploiement (mémoire, CPU) nécessaires au
+   fonctionnement de l'application.
 2. Développer une API REST permettant de faire du CRUD sur la base
    de données (ajout/suppression/modification). L’API permettrait
    également de demander le démarrage/arrêt d’une application
@@ -664,8 +671,8 @@ Environnement de test
 
 Les technologies utilisées pour mettre en place le cluster de machines sont
 celles du MIP; Mesos, ZooKeeper, Marathon et Chronos. Comme les dépôts mis
-à disposition n'étaient pas fonctionnels, le développeur a dû mettre en place
-un cluster lui-même.
+à disposition n'étaient pas fonctionnels pour une personne externe,
+le développeur a dû mettre en place un cluster lui-même.
 
 .. figure:: images/mesos-cluster-test.png
    :width: 350px
@@ -690,10 +697,10 @@ Vagrant a utilisé en combinaison avec KVM pour la gestion des machines
 virtuelles constituant le cluster.
 
 Vagrant est un outil open source permettant de créer et gérer des machines
-virtuelles. Il fonctionne avec un fichier `Vagrantfile` décrivrant
-les propriétés de la machine virtuelle telles que la distribution utilisée
-son nom et sa configuration réseau par exemple. Ce fichier est un script
-*Ruby*.
+virtuelles. Il fonctionne avec un script *Ruby* nommé `Vagrantfile`.
+Ce script décrit les propriétés de la machine virtuelle telles que
+la distribution utilisée, son nom, sa quantité de RAM, le nombre de CPU
+qu'elle possède et sa configuration réseau.
 
 On peut créer un `Vagrantfile` facilement grâce à la commande
 :code:`vagrant init centos/7` qui crée un `Vagrantfile` basé sur une machine
@@ -705,18 +712,18 @@ démarrée avec la commande :code:`vagrant halt` ou :code:`vagrant destroy`
 si on désire effacer complètement la machine virtuelle.
 
 Vagrant a besoin d'un hyperviseur pour fonctionner. Il supporte `Virtualbox`,
-`Docker` et également `KVM`/`libvirt` qui remplissent ce rôle.
+`Docker` et également `KVM`/`libvirt`.
 Il est généralement utilisé avec Virtualbox mais il semble que KVM soit
 la solution à privilégier. Utilisé par DigitalOcean et Linode, KVM est un bon
 compromis entre performance et sécurité.
 
-Un des gros avantages de Vagrant est qu'il peut être utilisé conjointement
+Un des avantages de Vagrant est qu'il peut être utilisé conjointement
 à Ansible. Cela permet notamment de faire du provisioning et de pouvoir
 recréer facilement un cluster de machine par exemple.
 
 `Ansible` est un outil de déploiement automatisé et de provisioning.
 Lors du déploiement, une machine est responsable de
-l'orchestration du déploiement et commande machines où doivent être
+l'orchestration du déploiement et commande les machines où doivent être
 déployés les services.
 
 .. raw:: latex
@@ -724,20 +731,23 @@ déployés les services.
     \clearpage
 
 Ansible s'utilise généralement avec `Ansible Playbook` qui permet d'exécuter
-Ansible et de mettre en place des services grâce à des scripts appelés
+Ansible pour mettre en place des services grâce à des scripts appelés
 *playbooks*. Voici un exemple de playbook permettant de mettre en place
-un nœud slave pour un cluster mesos:
+un nœud replica pour un cluster mesos:
 
 .. literalinclude:: examples/playbook.yml
    :language: yaml
 
-Dans chaque playbook, il est nécessaire de définir la machine sur laquelle
-on désire déployer nos services (ici :code:`nodes`) ainsi que l'utilisateur qui
-s'y connecte (:code:`vagrant` comme il s'agit d'une machine Vagrant).
+Dans chaque playbook, il est nécessaire de définir la machine (ou groupe de
+machines) sur laquelle on désire déployer nos services (ici :code:`nodes`
+qui correspond au groupe de nœuds replica du cluster).
+Il est également nécessaire de spécifier l'utilisateur qui s'y connecte
+(:code:`vagrant` comme il s'agit d'une machine Vagrant).
 Si certaines commandes doivent être lancées en tant que super utilisateur,
 il faut activer cette fonctionnalité et définir quelle commande permet de
 changer d'utilisateur. Dans notre cas, on utilise la commande :code:`sudo`.
-Une fois ces quatre variables définies, on peut définir les tâches à réaliser.
+Une fois ces quatre variables définies, on peut définir les tâches (*tasks*)
+à réaliser.
 Celles-ci seront exécutées l'une après l'autre. Chaque :code:`task` a un nom
 décrivant son but et une action. Il existe différents type d'actions:
 
@@ -755,17 +765,79 @@ Ansible est donc un outil de déploiement puissant. Il l'est encore plus
 lorsqu'il est combiné avec Vagrant car il permet de recréer un cluster
 de machines en quelques minutes.
 
-.. raw:: latex
-
-    \clearpage
-
 Le problème de la première approche a été son besoin assez important
 en ressources. Elle a été utile pour comprendre comment fonctionnent et
 se configurent les différents composants de l'infrastructure mais ne
 permettait pas de tester l'API qui serait développée avec ce cluster.
 
-C'est pourquoi une seconde solution utilisant Docker a été mise en place.
-En plus d'être plus légère, le cluster était mis en place plus rapidement
+C'est pourquoi une seconde solution utilisant Docker et *Docker Compose*
+a été mise en place. Docker Compose fonctionne avec un fichier `YAML`
+décrivant chaque service à démarrer ainsi que l'image à utiliser pour
+chaque service.
+
+.. _test-cluster-code:
+
+.. code-block:: yaml
+
+    version: '2'
+
+    services:
+      zoo1:
+        image: zookeeper:3.4
+        network_mode: host
+        ports:
+           - 2181:2181
+
+      mesos-master:
+        image: mesosphere/mesos-master:1.3.0
+        network_mode: host
+        environment:
+          - MESOS_CLUSTER=local
+          - MESOS_ZK=zk://127.0.0.1:2181/mesos
+          - MESOS_IP=127.0.0.1
+          - MESOS_QUORUM=1
+          - MESOS_WORK_DIR=/var/lib/mesos
+
+      mesos-slave:
+        image: mesosphere/mesos-slave:1.3.0
+        network_mode: host
+        privileged: true
+        environment:
+          - MESOS_PORT=5051
+          - MESOS_MASTER=zk://127.0.0.1:2181/mesos
+          - MESOS_IP=127.0.0.1
+          - MESOS_CONTAINERIZERS=docker,mesos
+          - MESOS_WORK_DIR=/var/lib/mesos
+          - MESOS_SWITCH_USER=0
+        volumes:
+          - /sys/fs/cgroup:/sys/fs/cgroup
+          - /usr/bin/docker:/usr/bin/docker.so
+          - /var/run/docker.sock:/var/run/docker.sock
+
+L'exemple de code déclare trois services; `zoo1` (ZooKeeper),
+`mesos-master` (Mesos Master) et `mesos-slave` (Mesos Slave).
+Chaque service utilise une image Docker disponible sur
+`Docker Hub <https://hub.docker.com/>`_. Docker se charge lui-même du
+téléchargement des images si elles ne sont pas présentes sur la machine.
+
+`network_mode` définit le comportement réseau des containers.
+Les services sont tous en `HOST` car Mesos ne fonctionne pas en mode `BRIDGE`
+sans rencontrer des problèmes de configuration. Le principal problème est
+que l'interface du mode  `BRIDGE` est plus lente.
+
+La clé `environment` permet de définir les variables d'environnement pour
+le container. Pour le service `mesos-master`, `MESOS_ZK` contient l'adresse
+à laquelle les nœuds Mesos peuvent contacter ZooKeeper et s'échanger
+des informations.
+
+`volumes` permet de partager des dossiers entre le container et
+la machine hôte.
+
+Si des ports du container doivent être exposés, il est nécessaire d'utiliser
+la clé `port`. En mode `HOST`, il faut respecter la syntaxe
+`<port_hôte>:<port_container>`.
+
+En plus d'être plus léger, le cluster démarrait bien plus rapidement
 qu'avec la solution précédente avec Ansible (une minute avec Docker
 contre douze avec Vagrant et Ansible). De plus cette solution était plus
 facilement partageable. Elle a d'ailleurs été partagée avec un collègue
