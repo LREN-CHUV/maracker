@@ -595,6 +595,47 @@ le lancement d'un script analysant une grande quantité de données
 (dans une base de données ou un fichier) pour en génèrer un résultat
 en sortie dans un fichier dans un répertoire.
 
+Résumé de l'architecture présentée
+----------------------------------
+
+Le diagramme d'architecture dans la figure :num:`Fig.#marathon-arch-fig`
+montre comment peuvent être déployés les différents composants du système
+distribué en utilisant les technologies présentées précédemment.
+
+.. _marathon-arch-fig:
+
+.. figure:: images/marathon_architecture.png
+   :align: center
+   :width: 350px
+   :alt: Architecture Mesos, Marathon, Chronos et ZooKeeper
+
+   Architecture Mesos, Marathon, Chronos et ZooKeeper
+
+
+Dans ce cas, plusieurs instances de ZooKeeper, Mesos-Master et Marathon
+fonctionnent afin de garantir de la haute disponibilité. On peut imaginer
+qu'il s'agisse de trois machines embarquant chacune une instance
+de ZooKeeper, Mesos-Master et Marathon.
+
+Plus bas, on peut voir que neuf machines embarquent une instance de
+Mesos-Slave. Chaque nœud s'est fait attribuer une ou plusieurs tâches
+par le Mesos-Master *leader* du cluster à l'exception d'un.
+
+Les tâches en oranges sont celles dont l'exécution a été demandée par Marathon.
+L'exécution de celles en bleu sont celle demandées par Chronos.
+On peut constater que deux instances de Chronos ont été lancées depuis
+Marathon. Lancer Chronos depuis Marathon est intéressant car il sera
+automatiquement redémarré par celui-ci s'il cesse soudainement de fonctionner.
+Scaler Chronos à deux instances permet également de faire de la haute
+disponibilité. S'il est lancé depuis Marathon, Chronos peut s'exécuter de deux
+manières différentes.
+Soit il est installé sur chaque nœud du cluster et Marathon spécifie
+la commande nécessaire à son lancement.
+Soit
+marathon demande son lancement à Mesos en utilisant une image Docker comme
+`mesosphere/chronos <https://hub.docker.com/r/mesosphere/chronos/>`_.
+Il en est de même pour les autres tâches comme `JBOSS`, `Rails`,
+`Jetty Service`, etc.
 
 Problématiques non-résolues par les solutions de systèmes distribués
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -627,7 +668,7 @@ contenues dans le Dockerfile de celle-ci décrivent les ressources
 
 Si cette partie est réalisée, le développeur pourra rechercher et mettre
 en œuvre une solution permettant d'exposer les applications instanciées
-dans Marathon. Des solutions open source existantes comme *traefik* et *vamp*
+dans Marathon. Des solutions open source existantes comme *træfik* et *vamp*
 peuvent constituer de bonnes pistes pour régler cette problématique.
 
 S'il reste du temps, le développeur pourra développer une petite application
@@ -930,7 +971,7 @@ Si l'image Docker du service n'est pas disponible sur le replica, elle est
 téléchargée avant l'instanciation du container.
 
 
-*TODO: Interaction traefik - Marathon*
+*TODO: Interaction træfik - Marathon*
 
 Base de données
 ~~~~~~~~~~~~~~~
