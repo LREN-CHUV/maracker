@@ -1,0 +1,13 @@
+{
+  "name": "simple-webapp",
+  "description": "simple web application from docker-training",
+  "docker_container": {
+    "type": "docker",
+    "image": "pschiffe/keycloak-demo-web-app",
+    "ports": [5000]
+  },
+  "marathon_configs": [{
+    "cpu": 1,
+    "memory": 64
+  }]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "angular-demo",
+  "description": "Empty description",
+  "docker_container": {
+    "type": "docker",
+    "image": "ianmaguire/docker-node-angular",
+    "ports": [8080]
+  },
+  "marathon_configs": [{
+    "cpu": 1,
+    "memory": 64
+  }]
+}

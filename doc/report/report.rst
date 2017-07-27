@@ -5,13 +5,49 @@
 .. raw:: latex
 
     \begin{abstract}
-        Abstract en français
+
+        Ce document décrit le déroulement du développement et la mise en place
+        d'une infrastructure visant à gérer un système distribué. Le système
+        distribué a été mis en place sur un système GNU/Linux à l'aide
+        des outils ZooKeeper, Mesos, Marathon, Chronos et Traefik.
+
+        ZooKeeper est responsable de la synchronisation entre Mesos, Marathon et
+        Chronos. Mesos, Marathon et Chronos s'occupent du partage des ressources
+        (CPU, RAM, volumes) entre les différentes applications à excécuter
+        sur le cluster de machines. Træfik gère l'exposition des applications
+        (reverse-proxying) démarrées sur Marathon aux utilisateurs.
+
+        En plus de l'infrastructure mise en place, une API (Maracker)
+        a été développée avec le framework Python Django.
+        Elle remplit le rôle de registre d'applications et permet de demander
+        le déploiement des applications sur le système distribué en utilisant
+        l'API de Marathon.
+
+        Toute l'infrastucture (ZooKeeper, Mesos, Marathon, Chronos, Træfik et
+        Maracker) a été délivrée sous la forme de containers Docker.
 
         \begin{center}
           \textbf{Abstract}
         \end{center}
 
-        Abstract en anglais
+        This document describes the developpment process of an infrastructure.
+        This infrastructure is responsible for managin a distributed system.
+        The distributed system has been built using a GNU/Linux operating
+        system and ZooKeeper, Mesos, Marathon, Chronos and Træfik.
+
+        ZooKeeper is responsible for the synchronization between Mesos,
+        Marathon and Chronos. Mesos, Marathon and Chronos take care of resources
+        (CPU, RAM, volumes) management and sharing between the applications
+        running on the cluster. Træfik does reverse-proxying onto the applications
+        deployed on Marathon.
+
+        On the top of that, an API called Maracker has been developped using
+        Python Django framework. This API is used an application registery and
+        allows users to ask applications deployment on the cluster using
+        Marathon's API.
+
+        The whole infrastructure (ZooKeeper, Mesos, Marathon, Chronos, Træefik
+        and Maracker) has been delivered in the form of Docker containers.
 
         \end{abstract}
 
@@ -920,13 +956,16 @@ sa planification et de la gestion des risques.
 Planification
 ~~~~~~~~~~~~~
 
-**Insérer la planification ou la mettre en annexes. Mettre
-la première planification puis la deuxième? À voir.**
-
 La première phase du projet (10 premières semaines) ont consisté à prendre
 en main les outils et technologies présentées précédemment; Vagrant,
 Mesosphere (Mesos et Marathon), le système d'exploitation
 CentOS et Ansible.
+
+La seconde phase a consisté à préciser les besoins du mandant et de mettre
+en place la base de données, l'API puis d'exposer les services instanciés
+dans Marathon avec la solution Træefik. Le développement d'un frontend
+était prévu mais n'a pas pu être réalisé à cause des imprévus
+(changement des besoins du mandant) et du manque de temps.
 
 À défaut de se lancer directement dans l'implémentation d'une solution,
 cette approche a permis de mieux comprendre la problématique.
@@ -934,14 +973,26 @@ Cette dernière n'était pas évidente à comprendre car complexe pour
 un développeur qui n'a pas de connaissances préalables en systèmes distribués
 et en PaaS.
 
+La première et la seconde version de la planification sont consultables dans
+les annexes. Aucune version supplémentaire n'a été faites comme la méthodologie
+de développement choisie était itérative.
+
+.. raw:: latex
+
+    \clearpage
+
 Définition et gestion des risques
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Nombreuses technologies à prendre en main par rapport au temps mis
-  à disposition.
-- Synchronisation développeur - mandant.
-- Ressources matériels à disposition insuffisantes pour développer et
-  effectuer des tests.
+Plusieurs risques ont été identifiés au début du projet. Le premier a été
+les nombreuses technologies à prendre en main. Beaucoup d'outils ont dû être
+pris en main et cela a nécessité plusieurs semaines. La solution proposée
+pour ce problème était de réorienter le projet vers des objectifs plus simples.
+
+Un second risque identifié a été le changement de la spécification en cours de
+projet. La solution proposé a été de d'abord développer ce qui avait été convenu
+dans le cahier des charges et d'ensuite réaliser les modifications si il restait
+du temps.
 
 Conception
 ==========
@@ -1056,8 +1107,14 @@ et ne pas correspondre aux besoins du projet pour plusieurs raisons:
 - Les ports à exposer pour accéder au service ne sont pas gérés par
   cette spécification.
 
-Toutefois, cela a pu montrer que deux types d'application peuvent être lancés;
-des services et des workflows.
+La discussion sur ce sujet est disponible dans
+`cette issue <https://github.com/groovytron/maracker/issues/10>`_.
+
+Cela a pu montrer que deux types d'application peuvent être lancés;
+des services et des workflows. Les workflows étant des tâches réalisées
+une seule fois, elle ne peuvent pas être déployées sur Marathon qui est
+fait pour exécuter et réssuciter les services si ils venaient à s'arrêter.
+Ces workflows doivent être démarrés dans Chronos et non dans Marathon.
 
 Le premier schéma entités - relation qui a permis le développement de
 la première base de données est celui de la figure
@@ -1072,8 +1129,6 @@ la première base de données est celui de la figure
 
    Premier schéma entités - relations
 
-
-
 Finalement, comme le support de Boutiques n'a pas été retenu dans le cadre
 du projet, un second schéma entités - relations a été réalisé en prévoyant
 un support de Boutiques plus tard si le projet est repris
@@ -1086,6 +1141,10 @@ un support de Boutiques plus tard si le projet est repris
    :alt: Second schéma entités - relations
 
    Second schéma entités - relations
+
+Supporter Boutique demanderait de supporter Chronos pour exécuter
+ce type d'applications. Cela ne figurant pas dans le cahier des charges,
+cette fonctionnalité n'a pas été développée.
 
 Architecture logicielle
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -1119,6 +1178,10 @@ vue ont été utilisées.
 Les routes, les modèles et les vues sont définis respectivement dans
 les fichiers `maracker/marackerapi/urls.py`, `maracker/marackerapi/models.py` et
 `maracker/marackerapi/views.py`.
+
+Trois modèles ont été créés à partir du schéma entités - relations
+(:num:`Fig. #schema-entity-relationship-02`); `MarackerApplication`,
+`DockerContainer` et `MarathonConfiguration`:
 
 Implémentation
 ==============
@@ -1160,11 +1223,15 @@ L'API a été développée à l'aide de *Django REST framework*. Ce framework a 
 utilisé parce qu'il facilite la sérialisation des modèles en JSON. Il permet aussi de
 simplifier la création des vues.
 
+.. raw:: latex
+
+    \clearpage
+
 De cette manière, développer une fonctionnalité devient plus simple. Il suffit de
 suivre la démarche suivante:
 
 1. Créer les modèles.
-2. Créer les sérialiseurs.
+2. Créer les sérialiseurs. (fichier `maracker/marackerapi/serializers.py`)
 3. Créer les vues relatives à la fonctionnalité.
 4. Créer la/les route(s) et la/les associer aux vues créées précédemment.
 
@@ -1227,6 +1294,50 @@ les configurations Marathon associées à l'application.
 Procéder de cette manière permet de faciliter les actions CRUD sur
 les containers et les configurations liés à l'application on a directement
 accès à leurs `id`.
+
+Si l'on désire créer un service, il est nécessaire de faire une requête `POST`
+sur la route `/apps`. Voici un exemple de contenu JSON permettant de déployer
+un service `Nginx`:
+
+.. literalinclude:: examples/maracker/docker-nginx.json
+   :language: json
+
+Cela correspond à un service packagé dans un container Docker dont l'image est
+`nginx` et le port `80` doit être exposé.
+Pour être exécuté, ce service a besoin d'utiliser un CPU et `64 MB` de RAM.
+Ce sont les ressources qui seront demandées à Marathon au moment du déploiement.
+
+Si l'insertion du service dans la base de données réussi, le même JSON est
+retourné avec des clés `id` en plus.
+
+.. code-block:: json
+
+    {
+      "id": 6,
+      "name": "nginx-test",
+      "description": "simple nginx container",
+      "docker_container": {
+        "id": 4,
+        "type": "docker",
+        "image": "nginx",
+        "ports": [80]
+      },
+      "marathon_configs": [{
+        "id": 12,
+        "cpu": 1,
+        "memory": 64
+      }]
+    }
+
+Ces clés contiennent les identifiants de chaque modèle lié au service. Ici on
+peut voir que le service créé possède l'id `6`, son container l'id `4` et
+sa configuration marathon l'id `12`.
+
+On peut donc obtenir les information du service à la route `/apps/6`.
+On peut également afficher/modifier/supprimer son container docker
+en faisant une requête `GET` sur la route `/container/docker/4`.
+On peut effectuer le même type d'opérations sur la configuration Marathon du
+service en utilisant la route `/marathon-config/12`.
 
 Extraction des métadonnées
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1393,9 +1504,67 @@ Par exemple, si l'application à déployer s'appelle `test` et que l'identifiant
 de sa configuration est `12`, `traefik.frontend.rule` prendra la valeur
 `Host:test12.marathon.localhost` et `traefik.backend` contiendra `test12`.
 
+Si on reprend l'exemple du service Nginx entré précédemment dans la base de
+données, le JSON qui sera envoyé à Marathon sera celui-ci:
+
+.. code-block:: json
+
+  {
+    "id": "/nginx-test.4",
+    "cmd": null,
+    "cpus": 1,
+    "mem": 64,
+    "instances": 1,
+    "container": {
+      "type": "DOCKER",
+      "docker": {
+        "image": "nginx",
+        "network": "BRIDGE",
+        "portMappings": [
+          {
+            "containerPort": 80,
+            "hostPort": 0
+          }
+        ],
+        "forcePullImage": false
+      }
+    },
+    "labels": {
+      "traefik.backend": "nginx-test4",
+      "traefik.frontend.rule": "Host:nginx-test4.marathon.localhost"
+    }
+  }
+
+La clé `portMappings` permet de définir quels ports du container Marathon doit
+exposé. `containerPort` correspond au port du container à exposer et `hostPort`
+correpond au port qui sera ouvert sur le système hôte. En général, on utilise
+la valeur `0` pour laisser Marathon choisir un port libre aléatoirement.
+Træfik s'occupera de rendre accessible le port choisi depuis l'extérieur du
+réseau.
+
 Les détails d'implémentation sont accessibles dans le fichier
 `maracker/marackerapi/services.py` implémentant le service responsable
 de la communication avec Marathon.
+
+.. raw:: latex
+
+    \clearpage
+
+Exposition des applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Comme présenté dans le chapitre précédent, l'exposition des applications
+fonctionne mais
+le mandant aurait voulu que les applications soient regroupées sous le même
+domaine et soient accessibles par des préfixes comme `marathon.localhost/app1`
+et `marathon.localhost/app2`  au lieu de `app1.marathon.localhost` et
+`app2.marathon.localhost`.
+Cela n'a pas été fait car certaines applications (typiquement
+les applications front-end) ne supportent pas ce type de reverse-proxying.
+Cela pose problème en ce qui concerne la racine du domaine qui n'est plus
+`marathon.localhost` mais `marathon.localhost/app1/`. La conséquence est
+que les fichiers statiques (fichier JavaScript, CSS, images, etc.) ne
+sont plus chargés. De ce fait certaines applications ne fonctionnent plus.
 
 Tests
 =====
@@ -1489,6 +1658,9 @@ Les tests suivants ont été réalisés pour tester le fonctionnement de l'API:
   - Mise à jour d'une application (écrasement des configurations Marathon
     avec de nouvelles configurations).
 
+Les détails de tous ces tests sont dans le fichier
+`maracker/marackerapi/tests.py`.
+
 Travis CI: un outil d'intégration continue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1548,34 +1720,147 @@ Même si la communication n'a pas été simple au début du projet et que
 les objectifs ont mis plus longtemps que prévu à être définis, une ligne
 directive plus claire a pu être donnée lors de la deuxième phase du projet.
 
-Le nombre de technologies dans l'écosystème n'a pas favorisé la compréhension
+Le nombre de technologies à prendre en main n'a pas favorisé la compréhension
 de la problématique mais en tester une partie a permis de mieux comprendre
 les besoins du mandant. Les connaissances de l'équipe de développeurs du CHUV
 ont également pu aider le développeur lorsqu'il avait des questions.
 
-Résultats
-~~~~~~~~~
+Résultats obtenus
+=================
+
+Les outils ZooKeeper, Mesos (primary et replica), Marathon, Træfik et l'API
+Maracker ont été mis en place et remplis une partie des fonctionnalités
+décrites dans le cahier de charges.
+
+Il est possible de tester l'ensemble de l'infrastructure. Pour cela, il faut
+disposer d'un système GNU/Linux avec les logiciels `git`, `Docker` et
+`Docker Compose` installés.
+Il suffit ensuite de cloner le dépôt avec
+`git clone https://github.com/groovytron/maracker.git`, se placer dans
+le dossier `maracker` téléchargé et lancer le script `run.sh`.
+
+Une fois le script exécuté, les différents services sont accessibles aux
+adresses suivantes:
+
+- marathon.localhost: Marathon
+
+- chronos.localhost: Chronos
+
+- traefik.localhost: Træfik
+
+- localhost:8000: API Maracker
+
+Il est ensuite possible de tester l'API en essayant d'ajouter un service.
+Voici un exemple utilisant déployant un service nginx. Ce service a été
+choisi parce que son container par défaut affiche une page d'index et
+qu'une application de démonstration plus élaborée n'a pas pu être développée
+faute de temps.
+
+Voici le fichier JSON envoyé à l'API pour ajouter le service Nginx:
+
+.. literalinclude:: examples/maracker/docker-nginx.json
+   :language: json
+
+Si on désire arrêter l'infrastructure, il suffit de lancer la commande
+`docker-compose stop`.
+
+Les figures suivantes montrent une partie de ce qui a été développé.
+Ici, l'infrastructure est démarrée puis un service est ajouté à la base
+de données avant de le déployer.
+
+.. figure:: images/demo/run-script.png
+   :align: center
+   :alt: Lancement du script de démarrage de l'infrastructure
+
+   Lancement du script de démarrage de l'infrastructure
+
+.. figure:: images/demo/marathon-ui.png
+   :align: center
+   :alt: Interface web de Marathon (aucune application)
+
+   Interface web de Marathon (aucune application)
+
+.. figure:: images/demo/traefik-ui.png
+   :align: center
+   :alt: Interface web de Træfik (Marathon, Chronos et Træefik)
+
+   Interface web de Træfik (Marathon, Chronos et Træefik)
+
+
+.. figure:: images/demo/create-nginx.png
+   :align: center
+   :alt: Création du service en utilisant l'API
+
+   Création du service en utilisant l'API
+
+.. figure:: images/demo/list-apps.png
+   :align: center
+   :alt: Liste des services disponibles
+
+   Liste des services disponibles
+
+.. figure:: images/demo/deploy-nginx.png
+   :align: center
+   :alt: Déploiement du service
+
+   Déploiement du service
+
+.. figure:: images/demo/marathon-nginx.png
+   :align: center
+   :alt: Nginx déployé sur Marathon
+
+   Nginx déployé sur Marathon
+
+.. figure:: images/demo/traefik-nginx.png
+   :align: center
+   :alt: Nginx détecté et exposé par Træfik
+
+   Nginx détecté et exposé par Træfik
+
+.. figure:: images/demo/nginx-url.png
+   :align: center
+   :alt: Accès à Nginx par son nom de domaine
+
+   Accès à Nginx par son nom de domaine
 
 Conclusion
 ==========
 
-- Atteintes des objectifs
+Si l'on reprend les objectifs initiaux, la base de données et l'API
+ont été mises en place.
+Elles suffisent pour gérer des services simples mais ne supportent pas
+Boutiques. Cela peut consister en une amélioration future mais cela
+demanderait d'y ajouter également le support de Chronos.
 
-  - Le contexte du mandant a-t-il été compris?
-  - L'API se superposant à Marathon fonctionne-t-elle?
-  - Un format de métadonnées a-t-il été spécifié? Existe-t-il un moyen
-    de vérifier que telle ou telle image Docker respecte ce format?
-  - Un démonstrateur a-t-il été développé?
+Il est possible d'effectuer du CRUD sur les différents modèles (application,
+container Docker et configuration Marathon) et de demander le déploiement
+de l'application sur Marathon.
 
-- Améliorations possibles
+Concernant l'exposition des services à leur instanciation, Træefik a été mis
+en place pour remplir ce rôle et l'API s'occupe elle-même d'ajouter les labels
+nécessaires pour que Træfik expose ces applications.
 
-.. Le développeur a pris un risque en prenant en tester des technologies
-.. qu'il n'utiliserait peut-être même pas mais cela lui a permis de mieux saisir
-.. la problématique.
+Seul le frontend n'a pas pu être développé. Comme cette fonctionnalité pourrait
+faciliter l'utilisation de l'API pour un utilisateur, cela constitue une tâche
+prioritaire dans les améliorations futures.
 
+Une autre amélioration possible serait de trouver une solution pour exposer
+toutes les applications déployées sous un même nom de domaine et garantir
+que leur fonctionnement (notammnent le chargement des fichiers statiques)
+ne sera pas entravé.
 
 Remerciements
 =============
+
+Je tiens à remercier Yoan Blanc (:code:`@greut`) pour son assistance technique
+concernant la mise en place de l'infrastructure et les réflexions sur
+l'utilisaton des outils et la relecture du rapport.
+
+Je tiens également à remercier Aïcha Rizzotti pour l'encadrement de ce projet.
+
+Je remercie aussi Ludovic Claude pour ses conseils techniques et l'aide qu'il
+a fournis pour m'assister dans la compréhension du fonctionnement de
+l'infrastructure du MIP.
 
 .. bibliography:: references.bib
    :notcited:
