@@ -120,7 +120,37 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
+    'preamble':
+    r'''
+       \makeatletter
+       \renewcommand{\maketitle}{
+         \begin{titlepage}
 
+            \centering
+                \includegraphics[width=0.50\textwidth]{logoarc}\par\vspace{1cm}
+                \vspace{1cm}
+                {\scshape\Large Travail de Bachelor 17INF-TB217\par}
+                \vspace{1.5cm}
+                {\huge\bfseries Maracker\par}
+                \vspace{1.5cm}
+                {\itshape Auteur : Julien M'Poy\par}
+                \vspace{0.1cm}
+                {\itshape Mandant : Human Brain Project - CHUV-LREN\par}
+                \vspace{0.1cm}
+                {\itshape Superviseur : Aïcha Rizzotti\par}
+                \vspace{0.1cm}
+                {\itshape Expert : Raphaël Barazutti\par}
+                \vfill
+            % Bottom of the page
+              {\large \today\par}
+         \end{titlepage}
+       }
+       \pagestyle{fancy}
+       \fancyhf{}
+       \fancyfoot[LE,RO]{\thepage}
+       \fancyfoot[RE,LO]{HE-Arc - Julien M'Poy}
+       \makeatother
+       ''',
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',

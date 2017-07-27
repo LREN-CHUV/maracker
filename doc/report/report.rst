@@ -2,10 +2,22 @@
  Maracker: rapport de projet
 =============================
 
+.. raw:: latex
+
+    \begin{abstract}
+        Abstract en français
+
+        \begin{center}
+          \textbf{Abstract}
+        \end{center}
+
+        Abstract en anglais
+
+        \end{abstract}
+
 .. toctree::
    :maxdepth: 2
    :numbered:
-   :caption: Contents:
 
 Introduction
 ============
@@ -668,7 +680,7 @@ contenues dans le Dockerfile de celle-ci décrivent les ressources
 
 Si cette partie est réalisée, le développeur pourra rechercher et mettre
 en œuvre une solution permettant d'exposer les applications instanciées
-dans Marathon. Des solutions open source existantes comme *træfik* et *vamp*
+dans Marathon. Des solutions open source existantes comme *Træfik* et *vamp*
 peuvent constituer de bonnes pistes pour régler cette problématique.
 
 S'il reste du temps, le développeur pourra développer une petite application
@@ -964,40 +976,426 @@ image Docker à utiliser) sont stockées dans la base de données.
 L'utilisateur peut ensuite demander le déploiement d'un service au-travers de
 l'API. Cela demande à l'API de communiquer avec le container embarquant Marathon
 pour demander le déploiement de l'application spécifiée par l'utilisateur.
+
 Le container Marathon transmet la demande de création de la tâche au container
 contenant Mesos-Master (primary) qui chargera le container Mesos-Slave (replica)
 d'exécuter la tâche et d'instancier le container embarquant le service demandé.
 Si l'image Docker du service n'est pas disponible sur le replica, elle est
 téléchargée avant l'instanciation du container.
 
+Une fois que le container du service est démarré, Marathon le signale dans son
+`bus d'évènement <https://mesosphere.github.io/marathon/docs/event-bus.html>`_.
+C'est ce flux qui est utilisé par `Træfik` pour être notifié des démarrages/arrêts
+des services. Il peut ensuite examiner les métadonnées du service
+comme les `labels <https://mesosphere.com/blog/2016/01/12/improving-operational-analytics-with-marathon-labels/>`_.
+Ces labels permettent de spécifier à Træfik comment exposer le service.
+`traefik.frontend.rule` permet de définir à quel nom de domaine le service
+sera accessible par exemple.
 
-*TODO: Interaction træfik - Marathon*
+.. _traefik-internal-fig:
+
+.. figure:: images/traefik_internal.png
+   :align: center
+   :alt: Fonctionnement interne de Træfik
+
+   Fonctionnement interne de Træfik
+
+Dans le cas de la figure :num:`Fig.#traefik-internal-fig`,
+plusieurs microservices ont été déployés; `api`, `web` et `backoffice`
+(scalé en trois instances).
+Chaque microservice se voit attribué un URL (ici `api.domain.com`,
+`domain.com/web` et `backoffice.domain.com`). Ces URL sont utilisés
+pour créer un frontend par service. Ces frontend sont un ensemble de règles
+qui se chargent de faire la correspondance entre les points d'entrée et
+les backends.
+Un backend peut-être constitué d'une ou plusieurs instances de serveurs
+embarquant le même service.
+
+Træefik traite donc les requêtes qu'il reçoit de la manière suivante:
+
+1. Il vérifie que l'hôte (HOST) demandé existe dans la liste des frontends.
+   Il répondra à l'utilisateur avec un code HTTP `404` si ce n'est pas le cas.
+   La requête est transmis au backend associé au frontend.
+2. Si ce backend est constitué de plusieurs serveurs, un serveur est choisit
+   selon une règle qui dépend de sa configuration. Le comportement par défaut
+   est d'en choisir un aléatoirement.
+
+L'avantage d'utiliser Træfik est que l'administrateur de l'infrastructure
+n'a pas besoin de gérer les configurations du reverse-proxy lui-même
+(virtual hosts, ports d'écoute, redirection de HTTP à HTTPS). Træfik s'en charge
+directement.
+
+Dans le cas présent, toute communication en HTTP (port `80`) avec
+les points d'entrée pour chaque microservice est redirigée sur
+le port HTTPS (`443`) afin de chiffrer les communications entre
+les utilisateurs et les microservices.
+
+Træfik possède d'autres fonctionnalités telles que du load-balancing,
+des healthchecks. De plus, il supporte de nombreux orchestreurs de containers
+en plus de Marathon comme `Kubernetes <https://kubernetes.io/>`_
+ou Docker Swarm. Ces fonctionnalités supplémentaires ne seront pas utilisées
+dans le cadre de ce projet.
 
 Base de données
 ~~~~~~~~~~~~~~~
 
 Cette section décrit comment la base de données a été conçue.
 
-*Présenter les deux modèles E-A (wokflow + service VS modèle simple)*
+Au moment de la conception de la base de données, [Boutiques](http://boutiques.github.io/)
+a été proposé par le mandant. Boutiques est une solution pour décrire
+une application et la manière dont elle s'utilise. L'application est décrite
+à l'aide d'un fichier JSON.
 
-Django
-~~~~~~
+Cette spécification n'a pas été utilisée car elle semblait trop contraignante
+et ne pas correspondre aux besoins du projet pour plusieurs raisons:
 
-- Django
+- Boutiques est prévu pour exécuter des workflows. Les workflows sont
+  des applications prenant en entrée des paramètres et générant des fichiers
+  en sortie. Lorsque la tâche a été réalisée, l'application s'arrête.
+  Cela ne correspond pas à l'exécution d'un service.
+- Les ports à exposer pour accéder au service ne sont pas gérés par
+  cette spécification.
 
-  - Normalement MVT (Model View Template) mais pas de template car API
+Toutefois, cela a pu montrer que deux types d'application peuvent être lancés;
+des services et des workflows.
+
+Le premier schéma entités - relation qui a permis le développement de
+la première base de données est celui de la figure
+:num:`Fig. #schema-entity-relationship-01`.
+
+.. _schema-entity-relationship-01:
+
+.. figure:: images/entity_relationship_schema_01.png
+   :width: 450px
+   :align: center
+   :alt: Premier schéma entités - relations
+
+   Premier schéma entités - relations
+
+
+
+Finalement, comme le support de Boutiques n'a pas été retenu dans le cadre
+du projet, un second schéma entités - relations a été réalisé en prévoyant
+un support de Boutiques plus tard si le projet est repris
+(:num:`Fig. #schema-entity-relationship-02`).
+
+.. _schema-entity-relationship-02:
+
+.. figure:: images/entity_relationship_schema_02.png
+   :align: center
+   :alt: Second schéma entités - relations
+
+   Second schéma entités - relations
+
+Architecture logicielle
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. figure:: images/mvt_schema.png
+   :align: center
+   :alt: Architecture Modèle - Vue - Template
+
+   Architecture Modèle - Vue - Template
+
+Comme Django a été utilisé pour réaliser l'API. Une architecture *MVT*
+(Modèle - Vue - Template) a été utilisée car elle est imposée par
+ce framework. Même si la nomination change, le fonctionnement est
+le même que celui d'une architecture *MVC* (Modèle - Vue - Contrôleur).
+
+Le modèle est responsable de la communication avec la base de données.
+Le template se charge de la présentation des données à l'utilisateur
+La vue s'occupe de récupérer les données à l'aide du modèle et d'ensuite
+appeler le template en lui transmettant les données du modèle.
+
+Lorsque l'utilisateur veut afficher la liste des applications en utilisant
+l'API à l'adresse http://api.com/apps, le framework s'occupe du routing.
+Si la route `/apps` existe, la requête est transmise à la vue.
+La vue va ensuite rechercher des informations dans la base de données
+en se servant du modèle. Une fois récupéré, le résultat est passé au template
+pour présenter les données à l'utilisateur sous la forme d'une page web.
+
+Comme le but du projet est de développer une API, seules les parties modèle et
+vue ont été utilisées.
+
+Les routes, les modèles et les vues sont définis respectivement dans
+les fichiers `maracker/marackerapi/urls.py`, `maracker/marackerapi/models.py` et
+`maracker/marackerapi/views.py`.
 
 Implémentation
 ==============
 
+Routes
+~~~~~~
+
+Voici les différentes routes de l'API et les actions que chacune effectue:
+
+- `/apps`:
+
+  - `GET`: Retourne un tableau JSON contenant toutes les applications
+    répertoriées dans la base de données.
+
+  - `POST`: Permet de créer une application.
+
+- `/apps/<id>` et `/apps/<name>`: Permet d'effectuer des opérations CRUD
+  sur une application particulière. La sélection de l'application peut
+  se faire soit par son `id`, soit par son nom (`name`).
+
+  - `GET`: Retourne un objet JSON contenant les informations relatives à
+    l'application.
+
+  - `PUT`: Modifie les informations de l'application.
+
+  - `DELETE`: Supprime l'application spécifiée.
+
+- `/container/docker/<id>`: Comportement identique à la route `/apps/<id>`
+  sauf qu'elle opère sur les containers.
+
+- `/marathon-config/<id>`: Comportement identique à la route `/apps/<id>`
+  sauf qu'elle opère sur les configurations Marathon.
+
+
 API
 ~~~
+
+L'API a été développée à l'aide de *Django REST framework*. Ce framework a été
+utilisé parce qu'il facilite la sérialisation des modèles en JSON. Il permet aussi de
+simplifier la création des vues.
+
+De cette manière, développer une fonctionnalité devient plus simple. Il suffit de
+suivre la démarche suivante:
+
+1. Créer les modèles.
+2. Créer les sérialiseurs.
+3. Créer les vues relatives à la fonctionnalité.
+4. Créer la/les route(s) et la/les associer aux vues créées précédemment.
+
+Même si Django REST framework a permis de faciliter la création
+des fonctionnalités, il a fallu modifier les sérialiseurs de manière à ce
+qu'ils gèrent les relations.
+
+Effectivement, le comportement par défaut des sérialiseurs est
+sérialiser/désérialiser les modèles sans leurs relations.
+Par exemple, le modèle `MarackerApplication` possède un ou aucun
+`DockerContainer` et aucun ou plusieurs `MarathonConfiguration`.
+
+L'API a été pensée pour que l'utilisateur n'aie pas à faire trois requêtes
+pour savoir à quelle `MarackerApplication` appartient chaque
+`MarathonConfiguration`. Les sérialiseurs ont été modifiés de manière à
+ce que lorsque que l'utilisateur demande la liste des applications,
+ils les obtiennent avec leurs containers et configuration Marathon respectives.
+
+Voici un exemple présentant le résultat de la requête sur la route `/apps`:
+
+.. code-block:: json
+
+    [
+        {
+            "id": 15,
+            "name": "simple-webapp",
+            "description": "simple web application from docker-training",
+            "command": "",
+            "vcs_url": "",
+            "docker_container": {
+                "id": 15,
+                "image": "pschiffe/keycloak-demo-web-app",
+                "ports": [
+                    5000
+                ]
+            },
+            "marathon_configs": [
+                {
+                    "id": 15,
+                    "cpu": "1.0",
+                    "memory": 64,
+                    "args": "",
+                    "env_vars": {}
+                }
+            ]
+        }
+   ]
+
+Dans l'exemple ci-dessus, le tableau retourné contient une seule application.
+On constate que toutes les informations relatives à l'application
+`simple-webapp` sont accessibles en une seule requête.
+
+`docker-container` contient le container associé à l'application. Si aucun
+container n'est associé à cette application, cette clé contient la valeur
+`null`.
+
+`marathon-configs` est un tableau contenant des objets JSON représentant
+les configurations Marathon associées à l'application.
+
+Procéder de cette manière permet de faciliter les actions CRUD sur
+les containers et les configurations liés à l'application on a directement
+accès à leurs `id`.
 
 Extraction des métadonnées
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+L'intégralité des images Docker utilisées par le MIP sont accessibles en public
+sur `Docker Hub <https://hub.docker.com/>`_.
+L'`API de MicroBadger <https://microbadger.com/api>`_ a été utilisée pour
+récupérer leurs métadonnées.
+
+Les métadonnées sont définies dans les `LABELS` contenus dans le `Dockerfile`
+utilisé pour la contstruction de l'image Docker. Si l'on prend par exemple,
+les `LABELS` de l'image Docker `hbpmip/woken`, les labels du Dockerfile
+sont les suivants:
+
+.. code-block:: dockerfile
+
+    # Dockerfile
+
+    # ...
+
+    LABEL org.label-schema.schema-version="1.0" \
+        org.label-schema.license="Apache 2.0" \
+        org.label-schema.name="woken" \
+        org.label-schema.description="An orchestration platform for Docker containers running data mining algorithms" \
+        org.label-schema.url="https://github.com/LREN-CHUV/woken" \
+        org.label-schema.vcs-type="git" \
+        org.label-schema.vcs-url="https://github.com/LREN-CHUV/woken" \
+        org.label-schema.vendor="LREN CHUV" \
+        org.label-schema.version="githash" \
+        org.label-schema.docker.dockerfile="Dockerfile" \
+        org.label-schema.memory-hint="2048"
+
+Comme Docker n'est pas très contraignant concernant le nom des `LABELS`,
+les développeurs du MIP ont choisi d'utiliser `Label Schema <http://label-schema.org/rc1/>`_.
+Label Schema est une spécification définissant les conventions de nommage à
+respecter pour les métadonnées contenues dans les `LABELS`.
+Le nom de chaque `LABEL` faisant partie de la spécification de Label Schema est
+préfixé par `org.label-schema`.
+`org.label-schema.description` correspond à la description de l'application
+contenue dans le container par exemple.
+
+Un service a été développé pour permettre de communiquer avec l'API.
+L'implémentation de ce dernier est faite dans le fichier
+`maracker/marackerapi/services.py`.
+
+Les métadonnées consommées par le service sont:
+
+- `org.label-schema.description`: Description de l'application.
+- `org.label-schema.memory-hint`: Mémoire RAM (en MB) nécessaire pour exécuter
+  l'application.
+
+`org.label-schema.cpu-hint` était sensé être utilisé mais il ne faisait plus
+partie de la spécification au moment du développement du service.
+
+Pour que ce service fonctionne, il est nécessaire que l'image aie été publiée
+sur Docker Hub. Cela se fait facilement il suffit de builder l'image Docker
+avec la commande `docker build -t <image-name>:<tag>` dans le dossier contenant
+le Dockerfile. Ensuite il faut publier l'imageà l'aide de la commande
+`docker push <image-name>:<tag>`.
+
+Ce service fonctionne et permet de récupérer les métadonnées des containers.
+
 Interaction avec l'API Marathon
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Comme dit précédemment, Marathon propose une API. Deux routes de cette API
+seront utilisées pour lancer le déploiement et la suppression d'une application
+sur Marathon.
+
+Les routes de Marathon sont:
+
+- `/apps`: Route permettant de créer et déployer une application.
+
+  - `POST`: Permet de créer une application.
+
+- `/apps/<app-name>`: Permet de modifier/supprimer une application.
+
+  - `DELETE`: Entraîne la suppression de l'application dont le nom est
+    celui spécifier par le paramètre `<app-name>`.
+
+Au départ la première idée a été d'utiliser le module Python
+`requests <http://docs.python-requests.org/en/master/>`_ mais la bibliothèque
+`marathon-python <https://github.com/thefactory/marathon-python>`_
+a finalement été utilisée. Utiliser une bibliothèque semblait plus sûr que de
+devoir gérer des erreurs venant de l'API de Marathon soi-même.
+
+Cette bibliothèque propose plusieurs classes Python permettant d'interagir avec
+Marathon:
+
+- `MarathonClient`: Client permettant de communiquer avec l'API de Marathon.
+  Cet objet contient un attribut `url` contenant l'url de l'API de Marathon.
+- `MarathonApp`: Objet représentant une application déployable sur Marathon.
+  Cet objet est celui à transmettre au `MarathonClient` pour lancer
+  le déploiement.
+- `MarathonDockerContainer`: Objet représentant un container Docker. Cet objet
+  peut être associé à un objet `MarathonApp`.
+
+.. raw:: latex
+
+    \clearpage
+
+Pour le déploiement d'une application à partir d'un objet
+`MarathonConfiguration`, le service est responsable de:
+
+1. Convertir l'objet `MarackerApplication` associé à la `MarathonConfiguration`
+   en `MarathonApp`.
+
+2. Définir les différents attributs de l'objet `MarathonApp` créé précédemment
+   à partir des informations contenues dans l'objet `MarathonConfiguration`.
+
+3. Si un `DockerContainer` est associé à la `MarackerApplication`, celui-ci
+   est converti en `MarathonDockerContainer`. Ce dernier est ensuite associé
+   à la `MarathonApp` créée au point 1.
+
+Le déploiement d'une application peut rencontrer plusieurs cas.
+Les cas suivants sont gérés:
+
+1. Si le service est installé sur tout le cluster et accessible en ligne de
+   commande, la clé `cmd` sera utilisé pour transmettre la commande à utiliser
+   pour démarrer le service sur Marathon.
+
+2. Si le service est installé sur tout le cluster et démarrable
+   par une commande et que sa configuration (`MarathonConfiguration`)
+   contient des arguments, l'attribut `args` de l'objet `MarathonConfiguration` sera
+   concaténé avec l'attribut `cmd` de l'objet `MarackerApplication`.
+   Le résultat de cette concaténation sera transmis à l'API de Marathon dans
+   la clé `cmd`.
+
+3. Si le service est un simple container Docker dont aucun ou plusieurs
+   ports doivent être exposés, les informations concernant le container
+   seront stockées dans la clé `container` de l'API de Marathon.
+
+4. Si le service est packagé dans un container (objet `DockerContainer`
+   associé à l'instance `MarackerApplication`) avec un `ENTRYPOINT` devant
+   accepter des arguments, l'attribut `args` de l'objet `MarathonConfiguration`
+   doit être défini. La clé `container` de l'API de Marathon contiendra
+   les informations relatives au container à exécuter. Les arguments
+   à passer au container doivent être définis l'attribut `args` de l'objet
+   `MarathonConfiguration` et ils seront transmis à l'API de Marathon en
+   utilisant la clé `args`.
+
+5. Si le service est packagé dans un container et doit lancer une commande
+   spécifique avec des paramètres, l'attribut `command` de l'object
+   `MarackerApplication` doit être défini pour la commande à exécuter.
+   L'attribut `args` de l'objet `MarathonConfiguration` doit contenir
+   les paramètres qui seront transmis à la commande à lancer dans le container.
+   Lors du déploiement sur Marathon, l'attribut `cmd`
+   de l'objet `MarackerApplication` et l'attribut `args`
+   de l'objet `MarathonConfig` seront concaténés dans la clé `cmd` pour l'API
+   de Marahton. La clé `container` contiendra les informations de l'objet
+   `DockerContainer`.
+
+Tous les services déployés sur Marathon sont exposés au monde extérieur
+grâce à Træfik. Comme dit précédemment, Træfik se base sur les labels
+des containers instanciés.
+Pour y parvenir, on définit l'attribut `labels` de
+l'objet `MarathonApp`. Cet attribut est un dictionnaire dont deux clés
+`traefik.frontend.rule` et `traefik.backend` sont définies en se basant
+sur le nom de l'application à déployer et l'identifiant de l'objet
+`MarathonConfiguration`. Cela permet de limiter le risque de collision
+de nom.
+
+Par exemple, si l'application à déployer s'appelle `test` et que l'identifiant
+de sa configuration est `12`, `traefik.frontend.rule` prendra la valeur
+`Host:test12.marathon.localhost` et `traefik.backend` contiendra `test12`.
+
+Les détails d'implémentation sont accessibles dans le fichier
+`maracker/marackerapi/services.py` implémentant le service responsable
+de la communication avec Marathon.
 
 Tests
 =====
@@ -1065,7 +1463,31 @@ le développeur effectue ces vérifications avant chaque commit.
 Le problème est que ce genre de tâches sont facilement oubliées et ne sont pas
 réalisées avant chaque commit. C'est là que vient l'intérêt d'utiliser
 un outil d'intégration continue (*CI*) comme
-`Travis CI <https://travis-ci.org/>`_.
+`Travis CI <https://travis-ci.org/>`_. Cet outil sera présenté plus tard dans
+ce document.
+
+Les tests suivants ont été réalisés pour tester le fonctionnement de l'API:
+
+- Service responsable de la communication avec Microbadger:
+
+  - Récupération des métadonnées d'une image Docker existante.
+
+  - Tentative de recherche pour une image Docker qui n'existe pas.
+
+- Service responsable de la communication avec Marathon:
+
+  - Déploiement d'une application puis suppression de cette application.
+
+- Tests de l'API
+
+  - Création d'une application sans container.
+
+  - Création d'une application utilisant un container.
+
+  - Création d'une application avec ses configurations Marathon.
+
+  - Mise à jour d'une application (écrasement des configurations Marathon
+    avec de nouvelles configurations).
 
 Travis CI: un outil d'intégration continue
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1087,7 +1509,7 @@ son projet:
    son compte GitHub.
 2. Ajouter le dépôt GitHub aux dépôts que Travis doit surveiller.
 3. Créer un fichier :code:`.travis.yml` et l'ajouter dans le dépôt. Ce fichier
-   décrit la configuration de Travis; language, OS,
+   décrit la configuration de Travis; langage, OS,
    installation des dépendances, scripts de tests, etc.
 
 Si la configuration est bien faite, Travis devrait builder à chaque push sur
@@ -1131,6 +1553,9 @@ de la problématique mais en tester une partie a permis de mieux comprendre
 les besoins du mandant. Les connaissances de l'équipe de développeurs du CHUV
 ont également pu aider le développeur lorsqu'il avait des questions.
 
+Résultats
+~~~~~~~~~
+
 Conclusion
 ==========
 
@@ -1148,14 +1573,6 @@ Conclusion
 .. qu'il n'utiliserait peut-être même pas mais cela lui a permis de mieux saisir
 .. la problématique.
 
-Analyse critique
-~~~~~~~~~~~~~~~~
-
-Résultats
-~~~~~~~~~
-
-Conclusion
-~~~~~~~~~~
 
 Remerciements
 =============
