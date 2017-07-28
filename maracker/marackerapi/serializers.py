@@ -76,6 +76,9 @@ class MarackerApplicationSerializer(serializers.ModelSerializer):
 
         container_data = validated_data.get('docker_container', None)
 
+        # If a new container or new marathon configurations are pushed
+        # the old ones are deleted and replaced the ones pushed
+        # by the user.
         if container_data:
             container = DockerContainer.objects.create(**container_data)
             instance.docker_container.delete()

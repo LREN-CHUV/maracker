@@ -2,7 +2,7 @@ from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 from .views import (ApplicationCreateView, ApplicationDetailsView,
                     ApplicationSlugView, DockerDetailsView,
-                    MarathonDetailsView, deploy)
+                    MarathonDetailsView, deploy, delete)
 
 urlpatterns = {
     url(r'^apps/?$', ApplicationCreateView.as_view(), name="maracker.create"),
@@ -21,6 +21,9 @@ urlpatterns = {
     url(r'^deploy/(?P<config_id>[0-9]+)/?$',
         deploy,
         name="maracker.deploy"),
+    url(r'^delete/(?P<config_id>[0-9]+)/?$',
+        delete,
+        name="maracker.delete"),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -9,6 +9,7 @@ from copy import copy
 
 
 def get_docker_metadata(namespace, name):
+    """Fetch container metadata using MicroBadger API"""
     api_url = "https://api.microbadger.com"
     details_url = api_url + "/v1/images/{}/{}"
 
@@ -22,6 +23,7 @@ def get_docker_metadata(namespace, name):
 
 
 class MicrobadgerMetadata:
+    """Represent metadata fetched from MicroBadger"""
     def __init__(self, docker_meta):
         labels = docker_meta.get("Labels", {})
         self.image_name = docker_meta.get("ImageName", None)
@@ -32,6 +34,10 @@ class MicrobadgerMetadata:
 
 
 class MarathonService:
+    """
+    Service responsible for asking applications deployment and deletion on
+    Marathon
+    """
     def __init__(self, url):
         self.client = MarathonClient(url)
 
@@ -44,25 +50,34 @@ class MarathonService:
 
         maracker_app = marathon_config.maracker_app
 
+        # No container needed for the application
         if not maracker_app.docker_container:
+            # Add a command and args if present
             if maracker_app.command:
                 marathon_app.cmd = maracker_app.command
             if marathon_config.args:
                 marathon_app.cmd += f"{marathon_config.agrs}"
 
+        # A container is needed
         elif maracker_app.docker_container:
+            # Create the container object basis
             docker = MarathonDockerContainer(
                 image=maracker_app.docker_container.image,
                 network="BRIDGE",
                 force_pull_image=False)
 
+            # Add the command and its args if present
             if maracker_app.command:
                 marathon_app.cmd = maracker_app.command
 
                 if maracker_app.args:
                     marathon_app.cmd += f" {marathon_config.args}"
+
+            # If the container has an ENTRYPOINT that requires args
             elif marathon_config.args:
                 marathon_app.args = marathon_config.args
+
+            # If some ports have to be exposed, labels have to be added
             if maracker_app.docker_container.ports:
                 docker.port_mappings = [
                         MarathonContainerPortMapping(
@@ -77,6 +92,7 @@ class MarathonService:
                 }
             marathon_app.container = MarathonContainer(docker=docker)
 
+        # Environment variables handling
         if marathon_config.env_vars:
             marathon_app.env = copy(marathon_config.env_vars)
 

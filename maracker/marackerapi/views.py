@@ -56,3 +56,12 @@ def deploy(request, config_id):
     service.deploy(config)
     serializer = MarathonConfigSerializer(config)
     return Response(serializer.data, status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def delete(request, config_id):
+    config = get_object_or_404(MarathonConfig, pk=config_id)
+    service = MarathonService(settings.MARATHON["URL"])
+    service.delete(config)
+    serializer = MarathonConfigSerializer(config)
+    return Response(serializer.data, status.HTTP_200_OK)

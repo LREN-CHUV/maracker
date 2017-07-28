@@ -8,6 +8,7 @@ appname_max_length = 50
 
 
 class DockerContainer(models.Model):
+    """Represent a Docker container associatded with a Maracker application"""
     image = models.CharField(
         max_length=50,
         blank=False,
@@ -25,6 +26,7 @@ class DockerContainer(models.Model):
 
 
 class MarackerApplication(models.Model):
+    """Represent an application with its description"""
     name = models.SlugField(
         max_length=appname_max_length,
         unique=True,
@@ -44,6 +46,7 @@ class MarackerApplication(models.Model):
 
 
 class MarathonConfig(models.Model):
+    """Represent a configuration that can be pushed to Marathon API"""
     cpu = models.DecimalField(
         max_digits=3,
         decimal_places=1,
