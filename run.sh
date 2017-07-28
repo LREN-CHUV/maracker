@@ -2,7 +2,7 @@
 
 docker-compose up -d
 docker-compose stop proxy
-echo 'Wainting 50 seconds before restarting traefik'
+echo 'Waiting 50 seconds before restarting traefik'
 sleep 40
 docker-compose up -d proxy
 echo "traefik restarted"

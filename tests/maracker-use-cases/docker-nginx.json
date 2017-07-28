@@ -1,6 +1,7 @@
 {
   "name": "nginx-test",
   "description": "simple nginx container",
+  "vcs_url": "https://github.com/nginxinc/docker-nginx",
   "docker_container": {
     "type": "docker",
     "image": "nginx",
