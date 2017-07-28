@@ -50,19 +50,24 @@ If you want to run the unit tests, use the `manage.py` script and run
 ## Execution details
 
 The infrastructure (Mesos, Marathon, Chronos and Traefik) can be launched
-by executing the `start_stack.sh` script. This launches docker containers and
+by executing the `run.sh` script. This launches docker containers and
 restarts the `traefik` container 50  seconds after the others have been started
 so that it connects to `Marathon` correctly. This amount of time can be set
-by modifying the `start_stack.sh` script.
+by modifying the `run.sh` script.
 
 The following UIs are accessible after the script executed:
 
 * Marathon: [http://marathon.localhost](http://marathon.localhost)
 * Chronos: [http://chronos.localhost](http://chronos.localhost)
 * Traefik: [http://traefik.localhost](http://traefik.localhost)
+* Maracker: [https://localhost:8000](https://localhost:8000)
 
 You can then try to deploy applications on Marathon using either the examples
 in `tests/deployable-marathon-apps` or yours.
+
+If you want to test the developped API, you can try to send the JSON files
+in `tests/maracker-use-cases` (`docker-nginx.json`, `docker-webapp.json` or
+`docker-webapp2.json`) to the API.
 
 If you you want to stop the stack, launch
 `docker-compose -f stack-compose.yml stop`.

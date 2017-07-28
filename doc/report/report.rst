@@ -6,7 +6,7 @@
 
     \begin{abstract}
 
-        Ce document décrit le déroulement du développement et la mise en place
+        Ce document décrit le déroulement du développement et de la mise en place
         d'une infrastructure visant à gérer un système distribué. Le système
         distribué a été mis en place sur un système GNU/Linux à l'aide
         des outils ZooKeeper, Mesos, Marathon, Chronos et Traefik.
@@ -15,7 +15,9 @@
         Chronos. Mesos, Marathon et Chronos s'occupent du partage des ressources
         (CPU, RAM, volumes) entre les différentes applications à excécuter
         sur le cluster de machines. Træfik gère l'exposition des applications
-        (reverse-proxying) démarrées sur Marathon aux utilisateurs.
+        (reverse-proxying) démarrées sur Marathon. De cette manière,
+        les utilisateurs peuvent accéder aux applications web démarrées sur
+        le cluster au-travers de leur navigateur.
 
         En plus de l'infrastructure mise en place, une API (Maracker)
         a été développée avec le framework Python Django.
@@ -31,19 +33,20 @@
         \end{center}
 
         This document describes the developpment process of an infrastructure.
-        This infrastructure is responsible for managin a distributed system.
-        The distributed system has been built using a GNU/Linux operating
-        system and ZooKeeper, Mesos, Marathon, Chronos and Træfik.
+        This infrastructure is responsible for managing a distributed system.
+        The distributed system has been built using ZooKeeper, Mesos, Marathon,
+        Chronos and Træfik on a GNU/Linux operating system.
 
         ZooKeeper is responsible for the synchronization between Mesos,
         Marathon and Chronos. Mesos, Marathon and Chronos take care of resources
         (CPU, RAM, volumes) management and sharing between the applications
         running on the cluster. Træfik does reverse-proxying onto the applications
-        deployed on Marathon.
+        deployed on Marathon so that users can access them through their web
+        browsers.
 
         On the top of that, an API called Maracker has been developped using
-        Python Django framework. This API is used an application registery and
-        allows users to ask applications deployment on the cluster using
+        Python Django framework. This API is used as an applications registery
+        and allows users to ask applications deployment on the cluster using
         Marathon's API.
 
         The whole infrastructure (ZooKeeper, Mesos, Marathon, Chronos, Træefik
@@ -69,7 +72,7 @@ Contexte
 
 Le CHUV participe au projet Human Brain Project qui a pour but de mettre en
 place une infrastructure de recherche pour différents domaines liés à
-l’étude du cerveau (neurosciences mais pas uniquement).
+l’étude du cerveau.
 Ce projet est décomposé en 12 sous-projets. L’équipe de développement du CHUV
 s’occupe de la réalisation du sous-projet 8 (SP8):
 Medical Informatics Platform (MIP).
@@ -84,10 +87,9 @@ Son deuxième but est de rendre ces outils accessibles au-travers
 d’une plateforme web. Quelques applications ont déjà été développées et
 intégrées à la plateforme. Cependant il n’existe pas de moyen simple de
 déployer une application tierce provenant des communautés de chercheurs en
-neuroscience ou statistiques dans l’infrastructure existante et de pouvoir
-la gérer (démarrage, arrêt, exposition) aujourd’hui.
+neuroscience dans l’infrastructure existante.
 
-La plateforme MIP contient déjà une infrastructure permettant de gérer
+La plateforme MIP repose déjà sur une infrastructure permettant de gérer
 des services packagés dans des containers `Docker <https://www.docker.com/>`_
 et répartis dans un cluster de machines (système distribué).
 Les technologies de `Mesosphere <https://mesosphere.com/>`_
@@ -126,7 +128,7 @@ parties (front-end, back-end et éventuellement la base de données).
 
 Les applications web devenant plus populaires, il a fallu déployer celles-ci
 sur plusieurs machines de manière à ce qu'elles puissent supporter
-les nombreux utilisateurs de ces applications. On parle alors de haute
+le nombre croissant d'utilisateurs. On parle alors de haute
 disponibilité et de scaling. Les machines sont donc organisées en clusters
 (groupe de machines) et un load-balancer (répartiteur de charge) permet
 de répartir les requêtes des utilisateurs sur les différentes machines
@@ -150,8 +152,9 @@ les humains (des interfaces graphiques) et un point d'entrée pour
 les machines fournissant des données sous différents formats
 (:code:`JSON`, :code:`XML`, ...).
 Afin d'adopter cette architecture les applications sont souvent découpées en
-deux parties; une partie fournissant un front-end et l'autre étant le service
-(:num:`Fig. #soa-fig`).
+deux parties; une partie fournissant un front-end (utilisé par les humains)
+et l'autre étant le service (utilisé par des logiciels).
+Cela corresond à la figure (:num:`Fig. #soa-fig`).
 
 .. _soa-fig:
 
@@ -178,12 +181,6 @@ On parle d'infrastructure lorsque plusieurs machines virtuelles sont réparties
 sur plusieurs machines physiques.
 C'est de là qu'est né le terme Infrastructure as a Service (IaaS).
 
-**À restructurer pour parler d'Ansible (pour le provisioning) > bash**
-
-**Parler de solutions de cloud computing comme OpenStack?**
-
-**Expliquer le Iaas?**
-
 La virtualisation est la solution qui est la plus utilisée. Donnant ainsi
 une architecture représentée par le :num:`Fig. #virtualization-fig`:
 
@@ -205,8 +202,8 @@ Les plus utilisés sont `VMWare <https://www.vmware.com/fr.html>`_,
 Si l'on désire faire du provisioning, il est possible d'utiliser
 `Vagrant <https://www.vagrantup.com/>`_ en combinaison avec Ansible.
 
-Cependant des questions concernant les problèmes de réseau que
-se posent. Comment gérer ces machines qui peuvent être créées
+Cependant des questions concernant les problèmes de réseau se posent.
+Comment gérer ces machines qui peuvent être créées
 à la demande et gérer leurs configurations réseau pour que
 les applications qu'elles hébergent soient accessibles aux utilisateurs?
 Cela requiert que les développeurs connaissent l'ensemble de la stack.
@@ -229,8 +226,8 @@ Dans la figure :num:`Fig. #microservices-fig`, les utilisateurs finaux
 utilisent les applications et les applications utilisent les services.
 Le problème de cette architecture est qu'il y un nombre important de services
 à gérer. Il faut donc veiller à ce que les dépendances de chaque application
-et service soit satisfaites. La solution trouvée pour résoudre ces problèmes
-de dépendances a été de développer d'utiliser des containers
+et service soient satisfaites. La solution trouvée pour résoudre ces problèmes
+de dépendances a été d'utiliser des containers
 (:num:`Fig. #containerized-microservices-fig`).
 
 .. _containerized-microservices-fig:
@@ -254,14 +251,17 @@ système hôte.
 
 Un container est normalement sans état (stateless) dans le sens où il ne
 retrouve pas l'état dans lequel il était précédemment entre deux démarrages.
-À chaque fois qu'il démarre on se retrouve avec une machine «toute neuve».
+À chaque fois qu'il démarre, on se retrouve avec une machine «toute neuve».
 
-Il est possible de les rendre stateful grâce au système de volumes. Celui-ci
+Il est possible de rendre  un container stateful grâce au système de volumes.
+Celui-ci
 permet de partager des dossiers entre le système hôte et celui du container.
 Dans le cas d'un container hébergeant une base de données par exemple,
 un container stateful peut dumper la base de données régulièrement
-dans un dossier partagé. De cette manière on garde des backups de la base de
-données sur le système hôte. On peut ensuite rendre le container intelligent
+dans un dossier partagé entre lui et le système hôte.
+De cette manière on garde des backups de la base de
+données sur le système hôte à son démarrage.
+On peut ensuite rendre le container intelligent
 pour qu'il vérifie la présence de dumps dans le dossier qu'il partage avec
 l'hôte. S'il y en a, il les exécute et retrouve une base de données similaire
 à celle avant son redémarrage.
@@ -269,8 +269,8 @@ l'hôte. S'il y en a, il les exécute et retrouve une base de données similaire
 Comme ils partagent le même noyau, les containers sont moins gourmands en
 ressources que les machines virtuelles standards. On peut donc en lancer
 plusieurs sur un même système hôte. C'est d'ailleurs l'intérêt des containers.
-Ils sont plus légers (on parle de 8 MB pour une image basée sur Alpine Linux)
-que les machines virtuelles.
+Ils sont plus légers que les machines virtuelles. Par exemple, on parle de 8 MB
+pour une image basée sur Alpine Linux.
 
 Un autre avantage des containers est qu'il est possible de créer sa propre
 image. Un développeur qui crée une application peut donc créer un container
@@ -286,7 +286,7 @@ Dans cette architecture, le développeur n'a donc plus besoin de veiller
 à ce que les dépendances soient installées sur sa machine virtuelle car
 la machine virtuelle doit uniquement avoir la solution de conteneurisation
 installée pour faire fonctionner son container. Les dépendances sont satisfaites
-directement par l'image qui été créée par le développeur pour son application.
+directement par l'image qui a été créée par le développeur pour son application.
 
 L'inconvénient principal de cette architecture est que les machines virtuelles
 hébergent de plus en plus de containers et que les opérateurs doivent planifier
@@ -298,7 +298,7 @@ possède quelques fonctionnalités pour le faire.
 C'est pourquoi des outils d'orchestration de containers ont été développés.
 Ceux-ci permettent d'automatiser cette procédure et donc de décharger
 les opérateurs de cette responsabilité.
-Si on utilise un outil d'orchestration de container, l'architecture
+Si on utilise un outil d'orchestration de containers, l'architecture
 prend alors la forme de la figure «:num:`Fig. #container-orch-revised-fig`.
 
 .. _container-orch-revised-fig:
@@ -350,9 +350,6 @@ Aujourd'hui ces applications sont souvent packagées dans des containers.
 Microsoft Azure est un exemple de plateforme permettant aux développeurs
 de déployer leurs containers.
 
-**Parler des changements d'habitudes du développeur? Nouvelle méthode
-de développement (source --> CI/Test/Packages ---> Image Docker ---> prod)**
-
 .. raw:: latex
 
    \clearpage
@@ -370,13 +367,13 @@ Finalement, en observant toutes ces couches, on peut comparer le fonctionnement
 d'un tel environnement à un système d'exploitation
 (:num:`Fig. #operating-system-fig` »). La couche contenant
 les applications et services peut s'apparenter à des processus
-s'exécutant dans l'espace utilisateur.
+s'exécutant dans l'espace utilisateur (user space).
 La couche responsable de l'orchestration correspondrait à la couche de l'espace
 kernel (aussi appelé system space). Les containers seraient vus comme
-des microkernels et tout le reste serait dans la couche hardware.
+des microkernels (:num:`Fig. #distributed-operating-system-02-fig`).
 La différence par rapport à un système d'exploitation standard est que
 le système distribue toutes les tâches appartenant à l'espace utilisateur
-sur différentes machines (:num:`Fig. #distributed-operating-system-02-fig`).
+sur différentes machines.
 
 .. _distributed-operating-system-02-fig:
 
@@ -392,12 +389,12 @@ Le principe de système distribué n'est pas récent. Des tentatives comme
 ont été développée avant l'existence des containers.
 Seulement, l'utilisation de ce type de systèmes demandait de réécrire
 complètement ses applications très souvent dans un langage de programmation
-supportant la concurrence (pas forcément connu du développeur).
+supportant la concurrence pas forcément connu du développeur.
 Les solutions d'aujourd'hui ont permis de régler ce type de problèmes en partie
 grâce à la conteneurisation des applications. Il n'est maintenant plus
-nécessaire de réécrire son application et les nouveaux systèmes ne sont pas
-dépendants de l'OS de la machine ou du langage utilisé pour écrire
-l'application.
+nécessaire de réécrire son application et les nouveaux systèmes distribué
+ne sont pas dépendants de l'OS choisi pour les nœuds du cluster ou du langage
+utilisé pour écrire l'application.
 
 Même s'il est appelé *système d'exploitation*, le système distribué est plutôt
 vu comme une couche se superposant à l'OS existant de la machine hôte.
@@ -415,14 +412,15 @@ Le CHUV a d'ailleurs opté pour une solution de la Mesosphere mais
 sans DC/OS qui contient plus de logiciels.
 Leur système distribué est constitué de *Mesos*, *Marathon*, *ZooKeeper*
 et *Chronos*.
-Il existe déjà d'autres solutions de systèmes ditribués prévues pour
-le domaine médical comme *cbrain*. Ce dernier étant prévu pour du calcul
-distribué sur un cluster de HPC (High Performance Computer), il n'a pas
-été retenu pour plusieurs raisons. La principale est que la plateforme
-du MIP est prévue pour être déployée dans plusieurs hôpitaux à travers
-l'Europe. Des clusters de HPC coûtant significativement plus cher que
-des serveurs standards, une telle solution compliquerait
-le déploiement de la plateforme dans chacun des hôpitaux.
+
+.. Il existe déjà d'autres solutions de systèmes ditribués prévues pour
+.. le domaine médical comme *cbrain*. Ce dernier étant prévu pour du calcul
+.. distribué sur un cluster de HPC (High Performance Computer), il n'a pas
+.. été retenu pour plusieurs raisons. La principale est que la plateforme
+.. du MIP est prévue pour être déployée dans plusieurs hôpitaux à travers
+.. l'Europe. Des clusters de HPC coûtant significativement plus cher que
+.. des serveurs standards, une telle solution compliquerait
+.. le déploiement de la plateforme dans chacun des hôpitaux.
 
 
 Logiciels permettant de mettre en place un système distribué
@@ -494,8 +492,8 @@ ou lancer un container Docker).
 
     \clearpage
 
-L'interaction entre le framework, le nœud primary et le nœud replica
-se fait de la manière suivante:
+L'interaction entre le framework (ou service comme Marathon ou Chronos),
+le nœud primary et le nœud replica se fait de la manière suivante:
 
 1. Le nœud replica notifie le nœud primary des ressources (nombre de CPUs,
    mémoire, etc.) dont il dispose.
@@ -505,23 +503,24 @@ se fait de la manière suivante:
 4. Le nœud primary transmet les tâches au nœud replica pour qu'il les exécute
    en utilisant les executors du framework.
    Si les tâches du framework n'utilisent pas toutes les ressources du
-   nœud replica, celui-ci peut proposer le reste des ressources disponibles à
-   un autre framework.
-5. Lorsqu'une tâche est terminée, le nœeud replica recommence le cycle à
+   nœud replica, celui-ci peut proposer le reste des ressources disponibles
+   au framework ou à un autre framework.
+5. Lorsqu'une tâche est terminée, le nœud replica recommence le cycle à
    l'étape 1.
 
-Lorsque le nœeud primary courant n'est plus disponible, les tâches en cours sur
+Lorsque le nœud primary courant n'est plus disponible, les tâches en cours sur
 le cluster continuent d'être exécutées sur les nœuds replica jusqu'à ce
 qu'elles soient terminées.
 Par contre, plus aucune ressource supplémentaire ne peut être allouée et
 aucune nouvelle tâche ne peut être lancée.
 
 Si on veut faire de la haute disponibilité, il est possible de démarrer
-plusieurs nœuds primary. Au démarrage du cluster, *un seul* primary est choisi
+plusieurs nœuds primary et replica.
+Au démarrage du cluster, *un seul* primary est choisi
 comme *leader* parmi ceux disponibles.
 Si le leader choisit n'est plus disponible, un nouveau est choisi parmi
-les primarys en fonctionnement. Ce système d'élection/réélection est réalisé
-par au logiciel *ZooKeeper*.
+les primary en fonctionnement. Ce système d'élection/réélection est réalisé
+par le logiciel *ZooKeeper*.
 
 ZooKeeper
 ---------
@@ -546,9 +545,11 @@ la `documentation ZooKeeper <http://zookeeper.apache.org/doc/trunk/recipes.html#
 Avant de démarrer, le serveur ZooKeeper doit être initialisé avec un ID.
 Par exemple, pour l'initialiser avec un l'ID *1*, il suffit de lancer la
 commande :code:`sudo -u zookeeper zookeeper-server-initialize --myid=1`.
-Cet ID est utilisé pour différencier chaque serveur ZooKeeper.
+Cet ID doit toujours être un nombre entier unique.
+Il est utilisé pour différencier chaque serveur ZooKeeper.
 Cela est surtout important lorsque plusieurs serveurs ZooKeeper fonctionnent
 dans un cluster pour permettre de la haute disponibilité.
+
 Une fois initialisé, le serveur peut être démarré. Comme il se comporte
 comme un service sur UNIX, il suffit de lancer la commande
 :code:`sudo service zookeeper-server start`. On peut l'appeler avec
@@ -564,17 +565,18 @@ Marathon
 
 **Marathon** est un outil de PaaS (Platform as a Service).
 C'est une surcouche visant à faciliter l'utilisation de Mesos. Il permet de
-l'orchestration de containers et faire du scaling (gestion des ressources
+faire de l'orchestration de containers et faire du scaling (gestion
+des ressources
 et démarrage/arrêt d'applications) pour différents services.
 Ces services peuvent être contenus dans des containers Docker ou
 directement accessibles en ligne de commande. Dans le deuxième cas,
-il est nécessaire que ce service soit installé sur tous les noeuds
-replica du cluster.
+il est nécessaire que ces services soient installés sur tous
+les nœuds replica du cluster.
 Marathon propose une interface web d'administration et une *API REST*
 implémentée en *Scala*.
 
 C'est cette API qui sera utilisée pour la réalisation de ce projet.
-Pour créer instancier un simple serveur HTTP en Python,
+Par exemple, pour instancier un simple serveur HTTP en Python,
 il suffit d'envoyer le fichier *json* suivant à l'API:
 
 .. literalinclude:: examples/test.json
@@ -616,13 +618,13 @@ la clé `type` n'est pas obligatoire lorsque l'on utilise Docker comme
 containerizer car c'est sa valeur par défaut.
 La clé `docker` contient un object décrivant l'image à utiliser dans la clé
 `image` (ici `emilevauge/whoami`). Cette image d'exemple est un simple serveur web
-affichant une page d'index contenant les informations sur le serveur.
+affichant une page d'index contenant des informations sur ce serveur.
 La clé `network` spécifie le comportement que le container aura sur le réseau.
 La valeur `BRIDGE` connectera le container au sous-réseau créé par Docker
 (en général `172.17.0.1/16`). Si la configuration réseau est en `HOST`,
 le container partage la même interface réseau que la machine hôte.
-Il n'y a donc plus d'isolation entre le container et la machine hôte du point
-de vue du réseau.
+Il n'y a donc plus d'isolation entre le container et la machine hôte
+sur laquelle il a été déployé du point de vue du réseau.
 
 Chronos
 -------
@@ -637,11 +639,11 @@ des services de manière quotidienne afin de relancer ceux qui seraient
 des dumps de base de données et les transférer sur une autre machine
 pour faire des backups.
 
-Une autre utilisation possible est de lancer des tâches qui doivent être
-lancées qu'une seule fois. Un cas rentrant dans ce type de tâches est
-le lancement d'un script analysant une grande quantité de données
-(dans une base de données ou un fichier) pour en génèrer un résultat
-en sortie dans un fichier dans un répertoire.
+Une autre utilisation possible est de lancer des tâches qui ne
+doivent être lancées qu'une seule fois. Un cas rentrant dans
+ce type de tâches est le lancement d'un script analysant
+une grande quantité de données (dans une base de données ou un fichier)
+pour en génèrer un résultat en sortie dans un fichier dans un répertoire.
 
 Résumé de l'architecture présentée
 ----------------------------------
@@ -667,20 +669,19 @@ de ZooKeeper, Mesos-Master et Marathon.
 
 Plus bas, on peut voir que neuf machines embarquent une instance de
 Mesos-Slave. Chaque nœud s'est fait attribuer une ou plusieurs tâches
-par le Mesos-Master *leader* du cluster à l'exception d'un.
+par le Mesos-Master *leader* du cluster à l'exception d'un seul.
 
 Les tâches en oranges sont celles dont l'exécution a été demandée par Marathon.
-L'exécution de celles en bleu sont celle demandées par Chronos.
+Celles en bleu sont celles dont l'exécution a été demandée par Chronos.
 On peut constater que deux instances de Chronos ont été lancées depuis
 Marathon. Lancer Chronos depuis Marathon est intéressant car il sera
-automatiquement redémarré par celui-ci s'il cesse soudainement de fonctionner.
+automatiquement redémarré par Marathon s'il cesse soudainement de fonctionner.
 Scaler Chronos à deux instances permet également de faire de la haute
 disponibilité. S'il est lancé depuis Marathon, Chronos peut s'exécuter de deux
 manières différentes.
-Soit il est installé sur chaque nœud du cluster et Marathon spécifie
+Soit il est installé sur chaque nœud du cluster et on spécifie à Marathon
 la commande nécessaire à son lancement.
-Soit
-marathon demande son lancement à Mesos en utilisant une image Docker comme
+Soit on demande son lancement en spécifiant une image Docker comme
 `mesosphere/chronos <https://hub.docker.com/r/mesosphere/chronos/>`_.
 Il en est de même pour les autres tâches comme `JBOSS`, `Rails`,
 `Jetty Service`, etc.
@@ -709,9 +710,14 @@ Objectifs
 Marathon propose une API REST permettant d'instancier des applications et
 d'en gérer le nombre d'instances. Le but du travail consiste à réaliser
 une API permettant de déployer des applications (web services) packagées
-dans des containers Docker. Cette API serait une surcouche à celle de Marathon.
+dans des containers Docker sur Marathon.
+Cette API serait donc une surcouche à Marathon.
+
+Une des fonctionnalités supplémentaires apportées par l'API serait de proposer
+un catalogue de services (nom, description, lien vers le code source, etc.).
+
 Pour qu'une application soit déployable, il faudrait que les métadonnées
-contenues dans le Dockerfile de celle-ci décrivent les ressources
+(LABELS) contenues dans le Dockerfile de celle-ci décrivent les ressources
 (CPU et mémoire) dont elle a besoin.
 
 Si cette partie est réalisée, le développeur pourra rechercher et mettre
@@ -719,7 +725,7 @@ en œuvre une solution permettant d'exposer les applications instanciées
 dans Marathon. Des solutions open source existantes comme *Træfik* et *vamp*
 peuvent constituer de bonnes pistes pour régler cette problématique.
 
-S'il reste du temps, le développeur pourra développer une petite application
+S'il reste du temps, le développeur pourra développer un frontend
 proposant à l'utilisateur une liste d'applications en disponibles et
 en exécution. Il pourra ensuite les tester grâces à des :code:`<iframe>`.
 
@@ -760,7 +766,7 @@ Environnement de test
 
 Les technologies utilisées pour mettre en place le cluster de machines sont
 celles du MIP; Mesos, ZooKeeper, Marathon et Chronos. Comme les dépôts mis
-à disposition n'étaient pas fonctionnels pour une personne externe,
+à disposition n'étaient pas fonctionnels pour une personne externe au SP8,
 le développeur a dû mettre en place un cluster lui-même.
 
 .. figure:: images/mesos-cluster-test.png
@@ -774,7 +780,7 @@ Deux approches ont été adoptées. La première a visé à mettre en place
 un cluster de machines en se basant sur les cours mis à disposition par
 la communauté de Mesosphere. Cette approche a consisté à mettre en place
 ZooKeeper, Mesos puis Marathon et finalement Chronos sur une machine virtuelle.
-Le système de la machine virtuelle e)st un système GNU/Linux
+Le système de la machine virtuelle est un système GNU/Linux
 `CentOS <https://www.centos.org/>`_ (dérivé de la distribution
 `Red Hat <https://www.redhat.com/en>`_).
 Une fois ces logiciels mis en place, il a été possible de passer d'un cluster
@@ -784,7 +790,7 @@ les trois autres embarquant Mesos Slave.
 
 Le but de cette approche a été de permettre au développeur de prendre en main
 et comprendre comment chaque composant interagit avec les autres.
-Vagrant a utilisé en combinaison avec KVM pour la gestion des machines
+Vagrant a été utilisé en combinaison avec KVM pour la gestion des machines
 virtuelles constituant le cluster.
 
 Vagrant est un outil open source permettant de créer et gérer des machines
@@ -842,19 +848,20 @@ Une fois ces quatre variables définies, on peut définir les tâches (*tasks*)
 Celles-ci seront exécutées l'une après l'autre. Chaque :code:`task` a un nom
 décrivant son but et une action. Il existe différents type d'actions:
 
-- :code:`template`: permet de copier des fichiers de la machine hôte
+- :code:`template`: Permet de copier des fichiers de la machine hôte
   à la machine distante. Cette commande utilise le moteur de template
   `jinja <http://jinja.pocoo.org/>`_ et il est possible de lui passer
   des variables. Cela permet de personnaliser des fichiers de configurations
   par exemple.
-- :code:`apt`, :code:`yum`, ... : permet d'installer des packages facilement.
+- :code:`apt`, :code:`yum`, ... : Permet d'installer des packages facilement.
   Il existe des actions adaptées pour beaucoup de distributions Linux et
   langages comme *ruby* (:code:`bundler`) et *python* (:code:`pip`).
-- :code:`shell`: permet de lancer une commande dans le shell.
+- :code:`shell`: Permet de lancer une commande dans le shell.
 
 Ansible est donc un outil de déploiement puissant. Il l'est encore plus
 lorsqu'il est combiné avec Vagrant car il permet de recréer un cluster
-de machines en quelques minutes.
+de machines en quelques minutes. Le cluster mis en place avec cette approche
+est disponible dans le dossier `mesos-cluster-test`.
 
 Le problème de la première approche a été son besoin assez important
 en ressources. Elle a été utile pour comprendre comment fonctionnent et
@@ -863,8 +870,8 @@ permettait pas de tester l'API qui serait développée avec ce cluster.
 
 C'est pourquoi une seconde solution utilisant Docker et *Docker Compose*
 a été mise en place. Docker Compose fonctionne avec un fichier `YAML`
-décrivant chaque service à démarrer ainsi que l'image à utiliser pour
-chaque service.
+décrivant chaque service à démarrer ainsi que l'image Docker à utiliser pour
+chaque service (container).
 
 .. _test-cluster-code:
 
@@ -914,7 +921,9 @@ téléchargement des images si elles ne sont pas présentes sur la machine.
 `network_mode` définit le comportement réseau des containers.
 Les services sont tous en `HOST` car Mesos ne fonctionne pas en mode `BRIDGE`
 sans rencontrer des problèmes de configuration. Le principal problème est
-que l'interface du mode  `BRIDGE` est plus lente.
+que l'interface du mode  `BRIDGE` n'est pas suffisamment rapide pour que
+les échanges entre Mesos, ZooKeeper, Chronos et Marathon se fassent
+correctement.
 
 La clé `environment` permet de définir les variables d'environnement pour
 le container. Pour le service `mesos-master`, `MESOS_ZK` contient l'adresse
@@ -945,7 +954,7 @@ Combiné à `Django REST framework <http://www.django-rest-framework.org/>`_,
 le développement d'une API est accéléré.
 
 Comme Docker est un impératif nécessaire pour faire fonctionner l'environnement
-de test, le système d'exploitation choisi pour le développement est GNU\Linux.
+de test, le système d'exploitation choisi pour le développement est Linux.
 
 Gestion de projet
 =================
@@ -956,16 +965,16 @@ sa planification et de la gestion des risques.
 Planification
 ~~~~~~~~~~~~~
 
-La première phase du projet (10 premières semaines) ont consisté à prendre
+La première phase du projet (10 premières semaines) a consisté à prendre
 en main les outils et technologies présentées précédemment; Vagrant,
 Mesosphere (Mesos et Marathon), le système d'exploitation
 CentOS et Ansible.
 
-La seconde phase a consisté à préciser les besoins du mandant et de mettre
-en place la base de données, l'API puis d'exposer les services instanciés
-dans Marathon avec la solution Træefik. Le développement d'un frontend
-était prévu mais n'a pas pu être réalisé à cause des imprévus
-(changement des besoins du mandant) et du manque de temps.
+La seconde phase (à 100%) a consisté à préciser les besoins du mandant et de
+mettre en place la base de données, l'API puis d'exposer les services
+instanciés dans Marathon avec la solution Træfik.
+Le développement d'un frontend était prévu mais n'a pas pu être réalisé
+à cause des imprévus (changement des besoins du mandant) et du manque de temps.
 
 À défaut de se lancer directement dans l'implémentation d'une solution,
 cette approche a permis de mieux comprendre la problématique.
@@ -974,8 +983,8 @@ un développeur qui n'a pas de connaissances préalables en systèmes distribué
 et en PaaS.
 
 La première et la seconde version de la planification sont consultables dans
-les annexes. Aucune version supplémentaire n'a été faites comme la méthodologie
-de développement choisie était itérative.
+les annexes (dossier `annexes`). Aucune version supplémentaire n'a été faite
+comme la méthodologie de développement choisie était itérative.
 
 .. raw:: latex
 
@@ -1092,7 +1101,8 @@ Base de données
 
 Cette section décrit comment la base de données a été conçue.
 
-Au moment de la conception de la base de données, [Boutiques](http://boutiques.github.io/)
+Au moment de la conception de la base de données,
+`Boutiques <http://boutiques.github.io/>`_
 a été proposé par le mandant. Boutiques est une solution pour décrire
 une application et la manière dont elle s'utilise. L'application est décrite
 à l'aide d'un fichier JSON.
@@ -1142,7 +1152,7 @@ un support de Boutiques plus tard si le projet est repris
 
    Second schéma entités - relations
 
-Supporter Boutique demanderait de supporter Chronos pour exécuter
+Supporter Boutiques demanderait de supporter l'API de Chronos pour exécuter
 ce type d'applications. Cela ne figurant pas dans le cahier des charges,
 cette fonctionnalité n'a pas été développée.
 
@@ -1167,7 +1177,8 @@ appeler le template en lui transmettant les données du modèle.
 
 Lorsque l'utilisateur veut afficher la liste des applications en utilisant
 l'API à l'adresse http://api.com/apps, le framework s'occupe du routing.
-Si la route `/apps` existe, la requête est transmise à la vue.
+Si la route `/apps` existe, la requête est transmise à la vue associée
+à cette route.
 La vue va ensuite rechercher des informations dans la base de données
 en se servant du modèle. Une fois récupéré, le résultat est passé au template
 pour présenter les données à l'utilisateur sous la forme d'une page web.
@@ -1177,7 +1188,8 @@ vue ont été utilisées.
 
 Les routes, les modèles et les vues sont définis respectivement dans
 les fichiers `maracker/marackerapi/urls.py`, `maracker/marackerapi/models.py` et
-`maracker/marackerapi/views.py`.
+`maracker/marackerapi/views.py` du répertoire contenant le code source du
+projet.
 
 Trois modèles ont été créés à partir du schéma entités - relations
 (:num:`Fig. #schema-entity-relationship-02`); `MarackerApplication`,
@@ -1215,6 +1227,13 @@ Voici les différentes routes de l'API et les actions que chacune effectue:
 - `/marathon-config/<id>`: Comportement identique à la route `/apps/<id>`
   sauf qu'elle opère sur les configurations Marathon.
 
+- `/deploy/<id>`: Permet de déployer sur Marathon l'application associée
+  à la configuration Marathon spécifiée par le paramètre `id`.
+  Seule la méthode HTTP `POST` est autorisée pour cette route.
+
+- `/delete/<id>`: Permet de supprimer de Marathon l'application correspondant
+  à la configuration Marathon spécifiée par le paramètre `id`.
+  Seule la méthode HTTP `POST` est autorisée pour cette route.
 
 API
 ~~~
@@ -1223,19 +1242,16 @@ L'API a été développée à l'aide de *Django REST framework*. Ce framework a 
 utilisé parce qu'il facilite la sérialisation des modèles en JSON. Il permet aussi de
 simplifier la création des vues.
 
-.. raw:: latex
-
-    \clearpage
-
 De cette manière, développer une fonctionnalité devient plus simple. Il suffit de
 suivre la démarche suivante:
 
 1. Créer les modèles.
-2. Créer les sérialiseurs. (fichier `maracker/marackerapi/serializers.py`)
+2. Créer les sérialiseurs associées aux modèles.
+   (fichier `maracker/marackerapi/serializers.py`)
 3. Créer les vues relatives à la fonctionnalité.
 4. Créer la/les route(s) et la/les associer aux vues créées précédemment.
 
-Même si Django REST framework a permis de faciliter la création
+Même si Django REST framework a facilité la création
 des fonctionnalités, il a fallu modifier les sérialiseurs de manière à ce
 qu'ils gèrent les relations.
 
@@ -1248,9 +1264,13 @@ L'API a été pensée pour que l'utilisateur n'aie pas à faire trois requêtes
 pour savoir à quelle `MarackerApplication` appartient chaque
 `MarathonConfiguration`. Les sérialiseurs ont été modifiés de manière à
 ce que lorsque que l'utilisateur demande la liste des applications,
-ils les obtiennent avec leurs containers et configuration Marathon respectives.
+ils les obtiennent avec leurs containers et configuration Marathon respectifs.
 
-Voici un exemple présentant le résultat de la requête sur la route `/apps`:
+.. raw:: latex
+
+    \clearpage
+
+Voici un exemple présentant le résultat d'une requête sur la route `/apps`:
 
 .. code-block:: json
 
@@ -1284,16 +1304,20 @@ Dans l'exemple ci-dessus, le tableau retourné contient une seule application.
 On constate que toutes les informations relatives à l'application
 `simple-webapp` sont accessibles en une seule requête.
 
-`docker-container` contient le container associé à l'application. Si aucun
+`docker_container` contient le container associé à l'application. Si aucun
 container n'est associé à cette application, cette clé contient la valeur
 `null`.
 
-`marathon-configs` est un tableau contenant des objets JSON représentant
+`marathon_configs` est un tableau contenant des objets JSON représentant
 les configurations Marathon associées à l'application.
 
 Procéder de cette manière permet de faciliter les actions CRUD sur
 les containers et les configurations liés à l'application on a directement
 accès à leurs `id`.
+
+.. raw:: latex
+
+    \clearpage
 
 Si l'on désire créer un service, il est nécessaire de faire une requête `POST`
 sur la route `/apps`. Voici un exemple de contenu JSON permettant de déployer
@@ -1338,14 +1362,19 @@ On peut également afficher/modifier/supprimer son container docker
 en faisant une requête `GET` sur la route `/container/docker/4`.
 On peut effectuer le même type d'opérations sur la configuration Marathon du
 service en utilisant la route `/marathon-config/12`.
+Le déploiement de cette configuration peut être fait en effectuant une requête
+`POST` sur la route `deploy/12`.
 
 Extraction des métadonnées
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 L'intégralité des images Docker utilisées par le MIP sont accessibles en public
-sur `Docker Hub <https://hub.docker.com/>`_.
-L'`API de MicroBadger <https://microbadger.com/api>`_ a été utilisée pour
-récupérer leurs métadonnées.
+sur `Docker Hub <https://hub.docker.com/>`_. Il est donc possible d'accéder aux
+métadonnées (LABELS) de leur container par ce site. Cependant, Docker Hub
+ne propose pas d'API pour y accéder.
+C'est pourquoi l'`API de MicroBadger <https://microbadger.com/api>`_
+a été utilisée.
+Elle permet de récupérer leurs métadonnées.
 
 Les métadonnées sont définies dans les `LABELS` contenus dans le `Dockerfile`
 utilisé pour la contstruction de l'image Docker. Si l'on prend par exemple,
@@ -1379,7 +1408,8 @@ préfixé par `org.label-schema`.
 `org.label-schema.description` correspond à la description de l'application
 contenue dans le container par exemple.
 
-Un service a été développé pour permettre de communiquer avec l'API.
+Un service appelé `MicrobadgerService` a été développé pour permettre
+de communiquer avec l'API de MicroBadger.
 L'implémentation de ce dernier est faite dans le fichier
 `maracker/marackerapi/services.py`.
 
@@ -1416,7 +1446,7 @@ Les routes de Marathon sont:
 - `/apps/<app-name>`: Permet de modifier/supprimer une application.
 
   - `DELETE`: Entraîne la suppression de l'application dont le nom est
-    celui spécifier par le paramètre `<app-name>`.
+    celui spécifié par le paramètre `<app-name>`.
 
 Au départ la première idée a été d'utiliser le module Python
 `requests <http://docs.python-requests.org/en/master/>`_ mais la bibliothèque
@@ -1429,18 +1459,20 @@ Marathon:
 
 - `MarathonClient`: Client permettant de communiquer avec l'API de Marathon.
   Cet objet contient un attribut `url` contenant l'url de l'API de Marathon.
-- `MarathonApp`: Objet représentant une application déployable sur Marathon.
+- `MarathonApp`: Objet représentant une application déployable sur Marathon
+  (nom, CPU, mémoire, variables d'environnement).
   Cet objet est celui à transmettre au `MarathonClient` pour lancer
   le déploiement.
-- `MarathonDockerContainer`: Objet représentant un container Docker. Cet objet
-  peut être associé à un objet `MarathonApp`.
+- `MarathonDockerContainer`: Objet représentant un container Docker
+  (image, ports à exposer). Cet objet peut être associé à
+  un objet `MarathonApp`.
 
 .. raw:: latex
 
     \clearpage
 
 Pour le déploiement d'une application à partir d'un objet
-`MarathonConfiguration`, le service est responsable de:
+`MarathonConfiguration`, le service appelé `MarathonService` est responsable de:
 
 1. Convertir l'objet `MarackerApplication` associé à la `MarathonConfiguration`
    en `MarathonApp`.
@@ -1451,6 +1483,9 @@ Pour le déploiement d'une application à partir d'un objet
 3. Si un `DockerContainer` est associé à la `MarackerApplication`, celui-ci
    est converti en `MarathonDockerContainer`. Ce dernier est ensuite associé
    à la `MarathonApp` créée au point 1.
+
+4. Envoyer la requête de déploiement à Marathon en utilisant
+   le `MarathonClient` et la `MarathonApp`.
 
 Le déploiement d'une application peut rencontrer plusieurs cas.
 Les cas suivants sont gérés:
@@ -1470,8 +1505,7 @@ Les cas suivants sont gérés:
    ports doivent être exposés, les informations concernant le container
    seront stockées dans la clé `container` de l'API de Marathon.
 
-4. Si le service est packagé dans un container (objet `DockerContainer`
-   associé à l'instance `MarackerApplication`) avec un `ENTRYPOINT` devant
+4. Si le service est packagé dans un container avec un `ENTRYPOINT` devant
    accepter des arguments, l'attribut `args` de l'objet `MarathonConfiguration`
    doit être défini. La clé `container` de l'API de Marathon contiendra
    les informations relatives au container à exécuter. Les arguments
@@ -1542,9 +1576,8 @@ la valeur `0` pour laisser Marathon choisir un port libre aléatoirement.
 Træfik s'occupera de rendre accessible le port choisi depuis l'extérieur du
 réseau.
 
-Les détails d'implémentation sont accessibles dans le fichier
-`maracker/marackerapi/services.py` implémentant le service responsable
-de la communication avec Marathon.
+Les détails d'implémentation du `MarathonService` sont accessibles dans
+le fichier `maracker/marackerapi/services.py`.
 
 .. raw:: latex
 
@@ -1637,13 +1670,13 @@ ce document.
 
 Les tests suivants ont été réalisés pour tester le fonctionnement de l'API:
 
-- Service responsable de la communication avec Microbadger:
+- Service `MicrobadgerService`:
 
   - Récupération des métadonnées d'une image Docker existante.
 
   - Tentative de recherche pour une image Docker qui n'existe pas.
 
-- Service responsable de la communication avec Marathon:
+- Service `MarathonService`:
 
   - Déploiement d'une application puis suppression de cette application.
 
@@ -1667,13 +1700,14 @@ Travis CI: un outil d'intégration continue
 Ce type d'outils permet de monitorer le dépôt Git d'un projet et de réaliser
 des actions à chaque nouveau push. De cette manière, on peut facilement
 lancer les tests à chaque push et ainsi éliminer la probabilité que le projet
-soit «cassé» sans que le développeur s'en rendre compte rapidement.
-En général, les CI donnent accès aux logs de chaque build/batterie de test et
+soit «cassé» sans que le développeur s'en rende compte rapidement.
+En général, les outils de CI (Continuous Integration)
+donnent accès aux logs de chaque build/batterie de test et
 notifient le développeur par email si une erreur est survenue.
 
 Travis a été choisi parce qu'il est prévu pour exécuter des tests unitaires et
 supporte de nombreux langages (Python, Ruby, C, PHP, Java, etc.). À cela
-s'ajoute le fait que ce CI est facile à configurer.
+s'ajoute le fait que cet outil est facile à configurer.
 Il suffit de réaliser les actions suivantes pour utiliser Travis CI pour
 son projet:
 
@@ -1713,12 +1747,15 @@ Une fois les dépendances installées, on entre dans la partie avant les tests
 qui consiste à vérifier que le code respecte le PEP8.
 Finalement, on lance les tests avec le fichier :code:`manage.py` de Django.
 
+La mise en place des tests a permis de faciliter le refactoring des modèles
+et le débuggage de l'API.
+
 Difficultés et problèmes rencontrés
 ===================================
 
 Même si la communication n'a pas été simple au début du projet et que
-les objectifs ont mis plus longtemps que prévu à être définis, une ligne
-directive plus claire a pu être donnée lors de la deuxième phase du projet.
+la définition des objectifs a pris beaucoup de temps, une ligne
+directrice plus claire a pu être donnée lors de la deuxième phase du projet.
 
 Le nombre de technologies à prendre en main n'a pas favorisé la compréhension
 de la problématique mais en tester une partie a permis de mieux comprendre
@@ -1728,8 +1765,8 @@ ont également pu aider le développeur lorsqu'il avait des questions.
 Résultats obtenus
 =================
 
-Les outils ZooKeeper, Mesos (primary et replica), Marathon, Træfik et l'API
-Maracker ont été mis en place et remplis une partie des fonctionnalités
+Les outils ZooKeeper, Mesos (primary et replica), Marathon, Træfik ont été mis
+en place et l'API Maracker remplit une partie des fonctionnalités
 décrites dans le cahier de charges.
 
 Il est possible de tester l'ensemble de l'infrastructure. Pour cela, il faut
@@ -1831,12 +1868,15 @@ ont été mises en place.
 Elles suffisent pour gérer des services simples mais ne supportent pas
 Boutiques. Cela peut consister en une amélioration future mais cela
 demanderait d'y ajouter également le support de Chronos.
+Supporter l'ajout de Workflows décrits dans le format de Boutiques
+dans la base de données ainsi que les exécuter sur Chronos constituerait
+une amélioration future intéressante.
 
 Il est possible d'effectuer du CRUD sur les différents modèles (application,
 container Docker et configuration Marathon) et de demander le déploiement
 de l'application sur Marathon.
 
-Concernant l'exposition des services à leur instanciation, Træefik a été mis
+Concernant l'exposition des services à leur démarrage, Træefik a été mis
 en place pour remplir ce rôle et l'API s'occupe elle-même d'ajouter les labels
 nécessaires pour que Træfik expose ces applications.
 

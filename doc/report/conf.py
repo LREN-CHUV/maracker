@@ -131,15 +131,15 @@ latex_elements = {
                 \vspace{1cm}
                 {\scshape\Large Travail de Bachelor 17INF-TB217\par}
                 \vspace{1.5cm}
-                {\huge\bfseries Maracker\par}
+                {\huge\bfseries Maracker: une API implémentant un catalogue de services\par}
                 \vspace{1.5cm}
                 {\itshape Auteur : Julien M'Poy\par}
                 \vspace{0.1cm}
-                {\itshape Mandant : Human Brain Project - CHUV-LREN\par}
+                {\itshape Mandant : Human Brain Project - CHUV-LREN (Ludovic Claude)\par}
                 \vspace{0.1cm}
                 {\itshape Superviseur : Aïcha Rizzotti\par}
                 \vspace{0.1cm}
-                {\itshape Expert : Raphaël Barazutti\par}
+                {\itshape Expert : Raphaël Barazzutti\par}
                 \vfill
             % Bottom of the page
               {\large \today\par}
