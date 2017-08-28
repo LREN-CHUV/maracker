@@ -2,10 +2,20 @@
 title: Maracker
 author: Julien M'Poy, supervisé par Aïcha Rizzotti, expertisé par Raphaël Barazzutti
 lang: frenchb
-date: 29 août 2017, Haute École Arc Ingénirie, Neuchâtel
+date: 29 août 2017, Haute École Arc Ingénierie, Neuchâtel
 ---
 
 ## Sommaire
+
+* Introduction
+* Objectifs
+* Conception
+* Méthodologie
+* Problèmes rencontrés
+* Analyse critique
+* Résultats obtenus
+* Questions
+* Démonstration
 
 ---
 
@@ -47,9 +57,11 @@ comportant:
 
 ## Objectifs secondaires
 
-* Rechercher et mettre en œuvre une solution permettant d'exposer
+* Mettre en œuvre une solution permettant d'exposer
   les applications déployées. (reverse-proxying)
-* Réaliser une interface graphique (frontend) utilisant l'API.
+* Réaliser une interface graphique (frontend)
+    * utilisant l'API.
+    * permettant d'accéder aux applications déployées.
 
 ---
 
@@ -103,17 +115,19 @@ comportant:
 
 ## Base de données
 
-Schéma à réaliser
+![](../report/images/database_schema.png){ width=700px }
 
 ---
 
 ## Méthodologie
 
-1. Prendre en main les différentes technologies/composants de l'infrastructure
+De manière itérative:
+
+1. Prise en main des différentes technologies/composants de l'infrastructure
   (Mesos, Marathon, Chronos, Docker).
-2. Mettre en place un cluster.
-3. Développer l'API et sa base de données.
-4. Intégrer Træfik dans l'infrastructure mise en place.
+2. Mise en place d'un cluster.
+3. Développemment de l'API et sa base de données.
+4. Intégration de Træfik dans l'infrastructure mise en place.
 
 ---
 
@@ -123,6 +137,11 @@ Schéma à réaliser
     * Le mandant avait peu de temps à disposition.
     * Le cahier des charges a tardé à être définis (10 semaines).
     * Changement de spécification en cours de projet.
+
+---
+
+## Problèmes rencontrés
+
 * Infrastructure du SP8 difficilement utilisable en externe
     * Le développeur a dû en mettre une en place lui-même.
 
@@ -142,10 +161,10 @@ Schéma à réaliser
 ## Résultats obtenus
 
 * API:
-    * Contient les informations dont Marathon a besoin.
+    * Contient les informations dont Marathon a besoin pour le déploiement.
     * Déploiement/suppression des applications sur Marathon fonctionnelles.
-* Reverse proxying:
-    * Træefik mis en place. Les applications sont exposées quand elles sont déployées.
+* Reverse-proxying:
+    * Træfik mis en place. Les applications sont exposées quand elles sont déployées.
 
 ---
 
@@ -159,8 +178,27 @@ Schéma à réaliser
 
 ---
 
+## Démonstration
+
+<video width="720" height="480" controls>
+  <source src="videos/test.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video> 
+
+---
+
 ## Infrastructure détaillée
 
 ![](../report/images/architecture_schema.png){ width=700px }
 
 ---
+
+## Fonctionnement de Træfik
+
+![](../report/images/traefik_internal.png){ width=700px }
+
+---
+
+## Schéma entité - relation
+
+![](../report/images/entity_relationship_schema_02.png){ width=700px }
