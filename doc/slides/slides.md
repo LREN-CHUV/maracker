@@ -1,8 +1,13 @@
----
-title: Maracker
-author: Julien M'Poy, supervisé par Aïcha Rizzotti, expertisé par Raphaël Barazzutti
-lang: frenchb
-date: 29 août 2017, Haute École Arc Ingénierie, Neuchâtel
+# Maracker
+
+Auteur: Julien M'Poy
+
+Superviseure: Aïcha Rizzotti
+
+Expert: Raphaël Barazzutti
+
+29 août 2017, Haute École Arc Ingénierie, Neuchâtel
+
 ---
 
 ## Sommaire
@@ -34,13 +39,28 @@ date: 29 août 2017, Haute École Arc Ingénierie, Neuchâtel
 
 ---
 
-## Cluster
+## Système distribué
 
 ![](../report/images/distributed_operating_system_02.png){ width=700px }
 
 <aside class="notes">
-  test
+  - Cluster de trois machines (physiques ou virtuelles).
+  - L'OS peut-être différent sur chaque machine.
+  - Le DOS est mis en place grâce à des outils installés
+    sur chacune des machines.
+  - Le DOS évite à l'admin de gérer les ressources et
+    les détails du déploiement des applications lui-même.
 </aside>
+
+---
+
+## Outils
+
+* [Mesos](http://mesos.apache.org/): gestion des ressources (RAM, CPU).
+* [ZooKeeper](https://zookeeper.apache.org/): coordination entre les nœuds.
+* [Marathon](https://mesosphere.github.io/marathon/): orchestrateur de services
+  packagés sous forme de containers.
+* [Docker](https://www.docker.com/): «containerizer»
 
 ---
 
@@ -109,7 +129,7 @@ comportant:
 
 ## Architecture générale
 
-![](../report/images/170530-schema_simplifie.svg){ width=700px }
+![](../report/images/170530-schema_simplifie.png){ width=700px }
 
 ---
 
@@ -121,7 +141,7 @@ comportant:
 
 ## Méthodologie
 
-De manière itérative:
+En procédant par itération:
 
 1. Prise en main des différentes technologies/composants de l'infrastructure
   (Mesos, Marathon, Chronos, Docker).
@@ -181,7 +201,7 @@ De manière itérative:
 ## Démonstration
 
 <video width="720" height="480" controls>
-  <source src="videos/test.mp4" type="video/mp4">
+  <source src="videos/public_presentation.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
 
