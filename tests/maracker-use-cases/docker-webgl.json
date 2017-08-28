@@ -1,0 +1,14 @@
+{
+  "name": "webgl-earth",
+  "description": "simple container embedding a webgl demo app",
+  "vcs_url": "https://github.com/mbp76/webgl-earth",
+  "docker_container": {
+    "type": "docker",
+    "image": "mkiuchi/webglearth",
+    "ports": [80]
+  },
+  "marathon_configs": [{
+    "cpu": 1,
+    "memory": 64
+  }]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "apache-spot",
+  "description": "simple container embedding apache spot's demo",
+  "docker_container": {
+    "type": "docker",
+    "image": "apachespot/spot-demo",
+    "ports": [8889]
+  },
+  "marathon_configs": [{
+    "cpu": 1,
+    "memory": 64
+  }]
+}
