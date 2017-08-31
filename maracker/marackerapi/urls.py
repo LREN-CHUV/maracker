@@ -30,7 +30,7 @@ urlpatterns = {
     url(r'^delete/(?P<config_id>[0-9]+)/?$',
         delete,
         name="maracker.delete"),
-    url(r'^', schema_view, name='doc'),
+    url(r'^$', schema_view, name='doc'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)
