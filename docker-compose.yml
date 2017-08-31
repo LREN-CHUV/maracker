@@ -15,7 +15,7 @@ services:
     environment:
       - DB_HOST=localhost
       - DB_NAME=postgres
-    command: bash -c "python manage.py migrate && uwsgi --http :8000 --wsgi-file maracker/wsgi.py"
+        # command: bash -c "python manage.py migrate && uwsgi --http :8000 --wsgi-file maracker/wsgi.py --static-map /static=/var/www/maracker/static"
     # For local testing
     ports:
       - "8000:8000"

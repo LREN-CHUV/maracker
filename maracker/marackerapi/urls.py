@@ -3,6 +3,12 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import (ApplicationCreateView, ApplicationDetailsView,
                     ApplicationSlugView, DockerDetailsView,
                     MarathonDetailsView, deploy, delete)
+from rest_framework.schemas import get_schema_view
+from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
+
+schema_view = get_schema_view(
+        title='Maracker API', renderer_classes=[
+            OpenAPIRenderer, SwaggerUIRenderer])
 
 urlpatterns = {
     url(r'^apps/?$', ApplicationCreateView.as_view(), name="maracker.create"),
@@ -24,6 +30,7 @@ urlpatterns = {
     url(r'^delete/(?P<config_id>[0-9]+)/?$',
         delete,
         name="maracker.delete"),
+    url(r'^', schema_view, name='doc'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'rest_framework',  # Django REST framework
+    'rest_framework_swagger', # Swagger for documentation
     'marackerapi',  # Maracker's api
 ]
 
@@ -124,8 +125,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, os.environ.get('STATIC_ROOT', 'static/'))
+
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer', ),
 }
 
 MARATHON = {'URL': os.environ.get('MARATHON_URL', 'http://127.0.0.1:8080')}
+
+SWAGGER_SETTINGS = {
+        'USE_SESSION_AUTH': False,
+}
