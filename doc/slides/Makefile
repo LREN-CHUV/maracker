@@ -22,6 +22,8 @@ $(SLIDES): %.html: %.md
 		--self-contained \
 		--variable theme="beige" \
 		--variable transition="slide" \
+		--variable slideNumber="true" \
+		--variable showSlideNumber="true"
 
 $(PDFS): %.pdf: %.md
 	pandoc --latex-engine=xelatex \

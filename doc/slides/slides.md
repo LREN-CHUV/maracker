@@ -1,13 +1,12 @@
-# Maracker
-
-Auteur: Julien M'Poy
-
-Superviseure: Aïcha Rizzotti
-
-Expert: Raphaël Barazzutti
-
-29 août 2017, Haute École Arc Ingénierie, Neuchâtel
-
+---
+title: "Maracker"
+author:
+- "Auteur: Julien M'Poy"
+- "Mandant: Ludovic Claude (CHUV)"
+- "Superviseuse: Aïcha Rizzotti"
+- "Expert: Raphaël Barazzutti"
+lang: frenchb
+date: 29 août 2017, Haute École Arc Ingénierie, Neuchâtel
 ---
 
 ## Sommaire
@@ -17,10 +16,10 @@ Expert: Raphaël Barazzutti
 * Conception
 * Méthodologie
 * Problèmes rencontrés
-* Analyse critique
+* Démonstration
+<!-- * Analyse critique -->
 * Résultats obtenus
 * Questions
-* Démonstration
 
 ---
 
@@ -45,22 +44,25 @@ Expert: Raphaël Barazzutti
 
 <aside class="notes">
   - Cluster de trois machines (physiques ou virtuelles).
-  - L'OS peut-être différent sur chaque machine.
+  - La distribution peut-être différente sur chaque machine mais ce n'est pas
+    conseillé.
   - Le DOS est mis en place grâce à des outils installés
     sur chacune des machines.
   - Le DOS évite à l'admin de gérer les ressources et
     les détails du déploiement des applications lui-même.
+  - System services: sécurité, reverse-proxying, etc.
 </aside>
 
 ---
 
 ## Outils
 
-* [Mesos](http://mesos.apache.org/): gestion des ressources (RAM, CPU).
-* [ZooKeeper](https://zookeeper.apache.org/): coordination entre les nœuds.
-* [Marathon](https://mesosphere.github.io/marathon/): orchestrateur de services
-  packagés sous forme de containers.
-* [Docker](https://www.docker.com/): «containerizer»
+* [Mesos](http://mesos.apache.org/): gestion du cluster et de ses ressources (RAM, CPU).
+* [ZooKeeper](https://zookeeper.apache.org/): coordination entre les nœuds du cluster.
+* [Marathon](https://mesosphere.github.io/marathon/): orchestrateur de conteneurs
+  embarquant des services.
+* [Docker](https://www.docker.com/): _containerizer_.
+* [Ansible](http://docs.ansible.com/): outils de déploiement automatisé.
 
 ---
 
@@ -96,7 +98,7 @@ comportant:
   <i class="material-icons success">done</i>
 * Java: [Spring](https://spring.io/)
 * Scala: [Play 2](https://playframework.com/)
-* PHP: [Laravel](https://laravel.com/)
+* ~~PHP: [Laravel](https://laravel.com/)~~
 
 ---
 
@@ -122,14 +124,16 @@ comportant:
 <aside class="notes">
   - Træfik: exposition des applications uniquement.
   - Vamp: solution plus complète; load-balancing conditionnel,
-    autoscaling, etc.
+    autoscaling, canary testing, etc.
 </aside>
 
 ---
 
 ## Architecture générale
 
-![](../report/images/170530-schema_simplifie.png){ width=700px }
+![](../report/images/architecture_schema.png){ width=700px }
+
+<!-- ![](../report/images/170530-schema_simplifie.png){ width=700px } -->
 
 ---
 
@@ -149,52 +153,29 @@ En procédant par itération:
 3. Développemment de l'API et sa base de données.
 4. Intégration de Træfik dans l'infrastructure mise en place.
 
+<aside class="notes">
+  - API: plus encore sa conteneurisation.
+  - Beaucoup de tests de docker-compose avant d'y arriver.
+</aside>
+
 ---
 
 ## Problèmes rencontrés
 
 * Communication développeur - mandant:
-    * Le mandant avait peu de temps à disposition.
-    * Le cahier des charges a tardé à être définis (10 semaines).
-    * Changement de spécification en cours de projet.
-
----
-
-## Problèmes rencontrés
-
 * Infrastructure du SP8 difficilement utilisable en externe
-    * Le développeur a dû en mettre une en place lui-même.
 
----
 
-## Analyse critique
-
-* Développer une application monolithique dans un premier temps.
-* Meilleure gestion du temps (base de données notamment).
 
 <aside class="notes">
-  - Trop de temps passé sur le problème de Boutiques.
+  - Le mandant avait peu de temps à disposition.
+  - Le cahier des charges a tardé à être définis.
+  - Changement de spécification en cours de projet.
+  - Cahier des charges: environ 12 semaines
+    --> tentative de prise en main des technologies en attendant
+  - Changement de spécification --> discussions
+  - Le développeur a dû en mettre une en place lui-même.
 </aside>
-
----
-
-## Résultats obtenus
-
-* API:
-    * Contient les informations dont Marathon a besoin pour le déploiement.
-    * Déploiement/suppression des applications sur Marathon fonctionnelles.
-* Reverse-proxying:
-    * Træfik mis en place. Les applications sont exposées quand elles sont déployées.
-
----
-
-## Améliorations possibles
-
-* Ajouter une interface graphique pour faciliter l'utilisation.
-
----
-
-## Questions?
 
 ---
 
@@ -204,6 +185,40 @@ En procédant par itération:
   <source src="videos/public_presentation.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video> 
+
+
+<!-- ## Analyse critique
+
+* Développer une application monolithique dans un premier temps.
+* Meilleure gestion du temps (base de données notamment).
+
+<aside class="notes">
+  - Trop de temps passé sur le problème de Boutiques.
+</aside>
+
+-->
+
+---
+
+## Résultats obtenus
+
+* API:
+    * CRUD sur les applications et leurs configurations fonctionnel.
+    * Déploiement/suppression des applications sur Marathon possible.
+* Reverse-proxying:
+    * Træfik mis en place.
+    * Les applications sont exposées quand elles sont déployées.
+
+---
+
+## Améliorations possibles
+
+* Ajouter une interface graphique pour faciliter l'utilisation.
+* Améliorer le conteneur Docker embarquant l'API.
+
+---
+
+## Questions?
 
 ---
 
