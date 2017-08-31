@@ -14,10 +14,10 @@ def get_docker_metadata(namespace, name):
     details_url = api_url + "/v1/images/{}/{}"
 
     url = details_url.format(namespace, name)
-    response = requests.get(url)
+    response = requests.get(url).text
 
     try:
-        return MicrobadgerMetadata(response.json())
+        return MicrobadgerMetadata(json.loads(response))
     except json.decoder.JSONDecodeError:
         return None
 
